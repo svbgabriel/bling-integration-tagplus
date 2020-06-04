@@ -6,4 +6,9 @@
     <RootNamespace>bling_integration_tagplus</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="RestSharp" Version="106.11.4" />
+    <PackageReference Include="sqlite" Version="3.13.0" />
+  </ItemGroup>
+
 </Project>
