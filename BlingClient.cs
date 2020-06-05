@@ -6,9 +6,16 @@ namespace bling_integration_tagplus
 {
     class BlingClient
     {
-        public static void ExecuteGetOrder()
+        private string apiKey { get; set; }
+
+        public BlingClient(string apiKey)
         {
-            var request = HttpWebRequest.Create(@"https://bling.com.br/Api/v2/pedidos/json&apikey={apikey}");
+            this.apiKey = apiKey;
+        }
+
+        public void ExecuteGetOrder()
+        {
+            var request = HttpWebRequest.Create($"https://bling.com.br/Api/v2/pedidos/json&apikey={apiKey}");
             request.ContentType = "application/json";
             request.Method = "GET";
             using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)

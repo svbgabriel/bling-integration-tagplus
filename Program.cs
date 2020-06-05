@@ -1,6 +1,8 @@
-﻿using System;
-using System.Runtime.InteropServices;
+using dotenv.net;
+using dotenv.net.Utilities;
+using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace bling_integration_tagplus
 {
@@ -10,6 +12,10 @@ namespace bling_integration_tagplus
 
         static void Main(string[] args)
         {
+            // Carrega o arquivo de configuração
+            DotEnv.Config();
+            var envReader = new EnvReader();
+
             Console.WriteLine("Bem vindo a integração Bling - Tagplus");
             Console.WriteLine();
             Console.WriteLine("Será necessário autorizar a integração no Tagplus");
