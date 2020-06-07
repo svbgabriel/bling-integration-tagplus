@@ -22,6 +22,7 @@ namespace BlingIntegrationTagplus
             Console.WriteLine("O navegador será aberto para isso");
             Console.WriteLine("Por gentiliza, siga as instruções e insira o código gerado");
             OpenBrowser($"https://developers.tagplus.com.br/authorize?response_type=token&client_id={CLIENT_ID}&scope=write:produtos+read:pedidos");
+            string code = Console.ReadLine();
         }
 
         static void OpenBrowser(string url)
