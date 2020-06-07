@@ -1,8 +1,9 @@
+using BlingIntegrationTagplus.Models;
+using RestSharp;
 using System;
-using System.IO;
 using System.Net;
 
-namespace bling_integration_tagplus
+namespace BlingIntegrationTagplus
 {
     class BlingClient
     {
@@ -13,23 +14,41 @@ namespace bling_integration_tagplus
             this.apiKey = apiKey;
         }
 
-        public void ExecuteGetOrder()
+        public PedidosResponse ExecuteGetOrder()
         {
-            var request = HttpWebRequest.Create($"https://bling.com.br/Api/v2/pedidos/json&apikey={apiKey}");
-            request.ContentType = "application/json";
-            request.Method = "GET";
-            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+            var client = new RestClient("https://bling.com.br");
+            var request = new RestRequest("Api/v2/pedidos/json", DataFormat.Json);
+            request.AddQueryParameter("apikey", apiKey);
+            var response = client.Get<PedidosResponse>(request);
+
+            if (response.StatusCode != HttpStatusCode.OK)
             {
-                if (response.StatusCode != HttpStatusCode.OK)
-                    Console.Out.WriteLine("Error. Server returned status code: {0}", response.StatusCode);
-                using (StreamReader reader = new StreamReader(response.GetResponseStream()))
-                {
-                    var content = reader.ReadToEnd();
-                    if (string.IsNullOrWhiteSpace(content))
-                        Console.Out.WriteLine("Empty Response");
-                    else
-                        Console.Out.WriteLine("Response Body: \r\n {0}", content);
-                }
+                return null;
+            }
+            else
+            {
+                return response.Data;
+            }
+        }
+
+        public PedidosResponse ExecuteGetOrder(DateTime dateStart, DateTime dateEnd)
+        {
+            // Formata a data
+            string dateStartString = $"{dateStart.Day}/{dateStart.Month}/{dateStart.Year}";
+            string dateEndString = $"{dateEnd.Day}/{dateEnd.Month}/{dateEnd.Year}";
+            var client = new RestClient("https://bling.com.br");
+            var request = new RestRequest("Api/v2/pedidos/json", DataFormat.Json);
+            request.AddQueryParameter("apikey", apiKey);
+            request.AddQueryParameter("filters", $"dataEmissao[{dateStartString} TO {dateEndString}];");
+            var response = client.Get<PedidosResponse>(request);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                return null;
+            }
+            else
+            {
+                return response.Data;
             }
         }
     }

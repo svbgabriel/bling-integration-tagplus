@@ -4,7 +4,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace bling_integration_tagplus
+namespace BlingIntegrationTagplus
 {
     class Program
     {
