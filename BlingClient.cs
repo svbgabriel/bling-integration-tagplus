@@ -7,18 +7,18 @@ namespace BlingIntegrationTagplus
 {
     class BlingClient
     {
-        private string apiKey { get; set; }
+        private string ApiKey { get; set; }
 
         public BlingClient(string apiKey)
         {
-            this.apiKey = apiKey;
+            this.ApiKey = apiKey;
         }
 
         public PedidosResponse ExecuteGetOrder()
         {
             var client = new RestClient("https://bling.com.br");
             var request = new RestRequest("Api/v2/pedidos/json", DataFormat.Json);
-            request.AddQueryParameter("apikey", apiKey);
+            request.AddQueryParameter("apikey", ApiKey);
             var response = client.Get<PedidosResponse>(request);
 
             if (response.StatusCode != HttpStatusCode.OK)
@@ -38,7 +38,7 @@ namespace BlingIntegrationTagplus
             string dateEndString = $"{dateEnd.Day}/{dateEnd.Month}/{dateEnd.Year}";
             var client = new RestClient("https://bling.com.br");
             var request = new RestRequest("Api/v2/pedidos/json", DataFormat.Json);
-            request.AddQueryParameter("apikey", apiKey);
+            request.AddQueryParameter("apikey", ApiKey);
             request.AddQueryParameter("filters", $"dataEmissao[{dateStartString} TO {dateEndString}];");
             var response = client.Get<PedidosResponse>(request);
 
