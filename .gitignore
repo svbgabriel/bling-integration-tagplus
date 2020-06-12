@@ -434,3 +434,6 @@ $RECYCLE.BIN/
 
 # Env files
 .env
+
+# Database files
+*.db
