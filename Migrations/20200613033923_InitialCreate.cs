@@ -10,12 +10,12 @@ namespace BlingIntegrationTagplus.Migrations
                 name: "SettingStrings",
                 columns: table => new
                 {
-                    name = table.Column<string>(nullable: false),
-                    value = table.Column<string>(nullable: true)
+                    Name = table.Column<string>(nullable: false),
+                    Value = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SettingStrings", x => x.name);
+                    table.PrimaryKey("PK_SettingStrings", x => x.Name);
                 });
         }
 

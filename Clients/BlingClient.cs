@@ -3,7 +3,7 @@ using RestSharp;
 using System;
 using System.Net;
 
-namespace BlingIntegrationTagplus
+namespace BlingIntegrationTagplus.Clients
 {
     class BlingClient
     {
