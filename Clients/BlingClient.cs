@@ -1,4 +1,6 @@
-using BlingIntegrationTagplus.Models;
+using BlingIntegrationTagplus.Exceptions;
+using BlingIntegrationTagplus.Models.Bling;
+using Newtonsoft.Json;
 using RestSharp;
 using System;
 using System.Net;
@@ -19,15 +21,17 @@ namespace BlingIntegrationTagplus.Clients
             var client = new RestClient("https://bling.com.br");
             var request = new RestRequest("Api/v2/pedidos/json", DataFormat.Json);
             request.AddQueryParameter("apikey", ApiKey);
-            var response = client.Get<PedidosResponse>(request);
+            var response = client.Get(request);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                return null;
+                var error = JsonConvert.DeserializeObject<PedidosResponseError>(response.Content);
+                throw new BlingException($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
             }
             else
             {
-                return response.Data;
+                var pedidos = JsonConvert.DeserializeObject<PedidosResponse>(response.Content);
+                return pedidos;
             }
         }
 
@@ -40,15 +44,17 @@ namespace BlingIntegrationTagplus.Clients
             var request = new RestRequest("Api/v2/pedidos/json", DataFormat.Json);
             request.AddQueryParameter("apikey", ApiKey);
             request.AddQueryParameter("filters", $"dataEmissao[{dateStartString} TO {dateEndString}];");
-            var response = client.Get<PedidosResponse>(request);
+            var response = client.Get(request);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                return null;
+                var error = JsonConvert.DeserializeObject<PedidosResponseError>(response.Content);
+                throw new BlingException($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
             }
             else
             {
-                return response.Data;
+                var pedidos = JsonConvert.DeserializeObject<PedidosResponse>(response.Content);
+                return pedidos;
             }
         }
     }

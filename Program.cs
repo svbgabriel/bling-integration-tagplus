@@ -1,5 +1,8 @@
+using BlingIntegrationTagplus.Clients;
 using BlingIntegrationTagplus.Databases;
+using BlingIntegrationTagplus.Exceptions;
 using BlingIntegrationTagplus.Models;
+using BlingIntegrationTagplus.Models.Bling;
 using BlingIntegrationTagplus.Utils;
 using dotenv.net;
 using dotenv.net.Utilities;
@@ -18,11 +21,12 @@ namespace BlingIntegrationTagplus
             Console.WriteLine("############################################");
             Console.WriteLine("## Bem vindo a integração Bling - Tagplus ##");
             Console.WriteLine("############################################");
-            Console.WriteLine();
 
             // Carrega o arquivo de configuração
             DotEnv.Config();
             var envReader = new EnvReader();
+            // Carrega a API KEY do Bling
+            var blingApiKey = envReader.GetStringValue("BLING_API_KEY");
 
             // Inicializa o banco de dados local
             using var db = new IntegrationContext();
@@ -32,6 +36,7 @@ namespace BlingIntegrationTagplus
             var token = db.SettingStrings.SingleOrDefault(setting => setting.Name.Equals("TagplusToken"));
             if (token == null)
             {
+                Console.WriteLine();
                 Console.WriteLine("O Token do Tagplus não foi encontrado no banco de dados");
                 Console.WriteLine("Será necessário autorizar a integração no Tagplus");
                 Console.WriteLine("O navegador será aberto para isso");
@@ -45,6 +50,20 @@ namespace BlingIntegrationTagplus
                 }
                 db.Add(new SettingString("TagplusToken", code));
                 db.SaveChanges();
+            }
+            Console.WriteLine();
+            // Recupera os pedidos do Bling
+            Console.WriteLine("Procurando pedidos no Bling...");
+            var blingClient = new BlingClient(blingApiKey);
+            PedidosResponse pedidos = null;
+            try
+            {
+                pedidos = blingClient.ExecuteGetOrder();
+            }
+            catch (BlingException e)
+            {
+                Console.WriteLine($"Não foi possível recuperar os pedidos do Bling - {e.Message}");
+                Environment.Exit(-1);
             }
         }
     }
