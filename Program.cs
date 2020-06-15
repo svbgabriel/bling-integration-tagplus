@@ -43,7 +43,7 @@ namespace BlingIntegrationTagplus
                 Console.WriteLine("Por gentiliza, siga as instruções e insira o código gerado");
                 OSUtils.OpenBrowser($"https://developers.tagplus.com.br/authorize?response_type=token&client_id={CLIENT_ID}&scope=write:produtos+read:pedidos");
                 string code = Console.ReadLine();
-                while (code.Length == 0)
+                while (string.IsNullOrWhiteSpace(code))
                 {
                     Console.WriteLine("Não foi informado o código. Por gentiliza, informe o código:");
                     code = Console.ReadLine();
@@ -64,6 +64,11 @@ namespace BlingIntegrationTagplus
             {
                 Console.WriteLine($"Não foi possível recuperar os pedidos do Bling - {e.Message}");
                 Environment.Exit(-1);
+            }
+            // Envia os pedidos para o TagPlus
+            foreach (PedidoItem pedido in pedidos.Retorno.Pedidos)
+            {
+                // TODO
             }
         }
     }
