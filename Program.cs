@@ -33,6 +33,7 @@ namespace BlingIntegrationTagplus
             // Realiza as migrações
             db.Database.Migrate();
             // Verifica se o Token do Tagplus já está no banco de dados
+            string code;
             var token = db.SettingStrings.SingleOrDefault(setting => setting.Name.Equals("TagplusToken"));
             if (token == null)
             {
@@ -41,8 +42,8 @@ namespace BlingIntegrationTagplus
                 Console.WriteLine("Será necessário autorizar a integração no Tagplus");
                 Console.WriteLine("O navegador será aberto para isso");
                 Console.WriteLine("Por gentiliza, siga as instruções e insira o código gerado");
-                OSUtils.OpenBrowser($"https://developers.tagplus.com.br/authorize?response_type=token&client_id={CLIENT_ID}&scope=write:produtos+read:pedidos");
-                string code = Console.ReadLine();
+                OSUtils.OpenBrowser($"https://developers.tagplus.com.br/authorize?response_type=token&client_id={CLIENT_ID}&scope=read:produtos+write:pedidos");
+                code = Console.ReadLine();
                 while (string.IsNullOrWhiteSpace(code))
                 {
                     Console.WriteLine("Não foi informado o código. Por gentiliza, informe o código:");
@@ -50,6 +51,10 @@ namespace BlingIntegrationTagplus
                 }
                 db.Add(new SettingString("TagplusToken", code));
                 db.SaveChanges();
+            }
+            else
+            {
+                code = token.Value;
             }
             Console.WriteLine();
             // Recupera os pedidos do Bling
@@ -66,6 +71,7 @@ namespace BlingIntegrationTagplus
                 Environment.Exit(-1);
             }
             // Envia os pedidos para o TagPlus
+            TagPlusClient tagPlusClient = new TagPlusClient(code);
             foreach (PedidoItem pedido in pedidos.Retorno.Pedidos)
             {
                 // TODO
