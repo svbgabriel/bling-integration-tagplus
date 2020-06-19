@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlingIntegrationTagplus.Migrations
 {
     [DbContext(typeof(IntegrationContext))]
-    [Migration("20200613033923_InitialCreate")]
+    [Migration("20200619023319_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -17,9 +17,13 @@ namespace BlingIntegrationTagplus.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.1.5");
 
-            modelBuilder.Entity("BlingIntegrationTagplus.Models.SettingString", b =>
+            modelBuilder.Entity("BlingIntegrationTagplus.Models.TagPlusToken", b =>
                 {
                     b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ExpiresIn")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value")
@@ -28,7 +32,7 @@ namespace BlingIntegrationTagplus.Migrations
 
                     b.HasKey("Name");
 
-                    b.ToTable("SettingStrings");
+                    b.ToTable("TagPlusTokens");
                 });
 #pragma warning restore 612, 618
         }

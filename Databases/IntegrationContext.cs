@@ -8,7 +8,7 @@ namespace BlingIntegrationTagplus.Databases
         static readonly string DBFILE = "integration.db";
         readonly string DBCONNECTION = $"DataSource={DBFILE}";
 
-        public DbSet<SettingString> SettingStrings { get; set; }
+        public DbSet<TagPlusToken> TagPlusTokens { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options.UseSqlite(DBCONNECTION);

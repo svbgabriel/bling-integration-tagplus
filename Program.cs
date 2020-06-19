@@ -32,13 +32,13 @@ namespace BlingIntegrationTagplus
             using var db = new IntegrationContext();
             // Realiza as migrações
             db.Database.Migrate();
-            // Verifica se o Token do Tagplus já está no banco de dados
+            // Verifica se o Token do Tagplus já está no banco de dados e válido
             string code;
-            var token = db.SettingStrings.SingleOrDefault(setting => setting.Name.Equals("TagplusToken"));
-            if (token == null)
+            var token = db.TagPlusTokens.SingleOrDefault(setting => setting.Name.Equals("TagplusToken"));
+            if (token == null || DateTime.Now.CompareTo(DateTime.Parse(token.ExpiresIn)) >= 0)
             {
                 Console.WriteLine();
-                Console.WriteLine("O Token do Tagplus não foi encontrado no banco de dados");
+                Console.WriteLine("O Token do Tagplus não foi encontrado no banco de dados ou está expirado");
                 Console.WriteLine("Será necessário autorizar a integração no Tagplus");
                 Console.WriteLine("O navegador será aberto para isso");
                 Console.WriteLine("Por gentiliza, siga as instruções e insira o código gerado");
@@ -49,7 +49,19 @@ namespace BlingIntegrationTagplus
                     Console.WriteLine("Não foi informado o código. Por gentiliza, informe o código:");
                     code = Console.ReadLine();
                 }
-                db.Add(new SettingString("TagplusToken", code));
+                // Gera a data de expiração
+                // O Token expira em 24 horas, mas como "folga" ele será renovado em 20 horas
+                DateTime expirationDate = DateTime.Now.AddHours(20);
+                // Remove o registro antigo
+                if (token == null)
+                {
+                    db.Add(new TagPlusToken("TagplusToken", code, expirationDate.ToString("dd/MM/yyyy HH:mm:ss")));
+                } else
+                {
+                    token.Value = code;
+                    token.ExpiresIn = expirationDate.ToString("dd/MM/yyyy HH:mm:ss");
+                    db.Update(token);
+                }                
                 db.SaveChanges();
             }
             else
