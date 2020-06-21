@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace BlingIntegrationTagplus.Models.TagPlus
+namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos
 {
     public class Item
     {
@@ -16,16 +16,16 @@ namespace BlingIntegrationTagplus.Models.TagPlus
         public int Qtd { get; set; }
 
         [JsonProperty("valor_unitario")]
-        public int ValorUnitario { get; set; }
+        public float ValorUnitario { get; set; }
 
         [JsonProperty("valor_desconto")]
-        public int ValorDesconto { get; set; }
+        public float ValorDesconto { get; set; }
 
         [JsonProperty("detalhes")]
         public string Detalhes { get; set; }
 
         [JsonProperty("valor_venda")]
-        public int ValorVenda { get; set; }
+        public float ValorVenda { get; set; }
     }
 
     public class Parcela
@@ -35,7 +35,7 @@ namespace BlingIntegrationTagplus.Models.TagPlus
         public string Documento { get; set; }
 
         [JsonProperty("valor_parcela")]
-        public int ValorParcela { get; set; }
+        public float ValorParcela { get; set; }
 
         [JsonProperty("data_vencimento")]
         public string DataVencimento { get; set; }
@@ -51,7 +51,7 @@ namespace BlingIntegrationTagplus.Models.TagPlus
         public IList<Parcela> Parcelas { get; set; }
     }
 
-    public class CreateOrderBody
+    public class PedidoBody
     {
 
         [JsonProperty("codigo_externo")]
@@ -82,13 +82,13 @@ namespace BlingIntegrationTagplus.Models.TagPlus
         public IList<Fatura> Faturas { get; set; }
 
         [JsonProperty("valor_frete")]
-        public int ValorFrete { get; set; }
+        public float ValorFrete { get; set; }
 
         [JsonProperty("valor_desconto")]
-        public int ValorDesconto { get; set; }
+        public float ValorDesconto { get; set; }
 
         [JsonProperty("valor_acrescimo")]
-        public int ValorAcrescimo { get; set; }
+        public float ValorAcrescimo { get; set; }
 
         [JsonProperty("observacoes")]
         public string Observacoes { get; set; }

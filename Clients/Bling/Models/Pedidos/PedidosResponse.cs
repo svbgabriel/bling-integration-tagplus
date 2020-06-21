@@ -1,4 +1,4 @@
-namespace BlingIntegrationTagplus.Models.Bling
+namespace BlingIntegrationTagplus.Clients.Bling.Models.Pedidos
 {
     using Newtonsoft.Json;
     using System.Collections.Generic;

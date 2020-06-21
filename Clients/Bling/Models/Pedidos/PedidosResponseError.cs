@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace BlingIntegrationTagplus.Models.Bling
+namespace BlingIntegrationTagplus.Clients.Bling.Models.Pedidos
 {
     public partial class Erro
     {

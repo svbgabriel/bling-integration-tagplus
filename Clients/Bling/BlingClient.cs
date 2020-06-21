@@ -1,11 +1,11 @@
 using BlingIntegrationTagplus.Exceptions;
-using BlingIntegrationTagplus.Models.Bling;
+using BlingIntegrationTagplus.Clients.Bling.Models.Pedidos;
 using Newtonsoft.Json;
 using RestSharp;
 using System;
 using System.Net;
 
-namespace BlingIntegrationTagplus.Clients
+namespace BlingIntegrationTagplus.Clients.Bling
 {
     class BlingClient
     {
@@ -13,7 +13,7 @@ namespace BlingIntegrationTagplus.Clients
 
         public BlingClient(string apiKey)
         {
-            this.ApiKey = apiKey;
+            ApiKey = apiKey;
         }
 
         public PedidosResponse ExecuteGetOrder()

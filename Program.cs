@@ -1,13 +1,17 @@
-using BlingIntegrationTagplus.Clients;
+using BlingIntegrationTagplus.Clients.Bling;
+using BlingIntegrationTagplus.Clients.Bling.Models.Pedidos;
+using BlingIntegrationTagplus.Clients.TagPlus;
+using BlingIntegrationTagplus.Clients.TagPlus.Models.Clientes;
+using BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos;
 using BlingIntegrationTagplus.Databases;
 using BlingIntegrationTagplus.Exceptions;
 using BlingIntegrationTagplus.Models;
-using BlingIntegrationTagplus.Models.Bling;
 using BlingIntegrationTagplus.Utils;
 using dotenv.net;
 using dotenv.net.Utilities;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BlingIntegrationTagplus
@@ -15,6 +19,7 @@ namespace BlingIntegrationTagplus
     class Program
     {
         static readonly string CLIENT_ID = "r7Qww3H1q0aZxpHqQFKAwa47gYdWxHjW";
+        static readonly string SCOPE = "read:produtos+read:formas_pagamento+read:departamentos+read:clientes+read:usuarios+write:pedidos";
 
         static void Main(string[] args)
         {
@@ -42,7 +47,7 @@ namespace BlingIntegrationTagplus
                 Console.WriteLine("Será necessário autorizar a integração no Tagplus");
                 Console.WriteLine("O navegador será aberto para isso");
                 Console.WriteLine("Por gentiliza, siga as instruções e insira o código gerado");
-                OSUtils.OpenBrowser($"https://developers.tagplus.com.br/authorize?response_type=token&client_id={CLIENT_ID}&scope=read:produtos+write:pedidos");
+                OSUtils.OpenBrowser($"https://developers.tagplus.com.br/authorize?response_type=token&client_id={CLIENT_ID}&scope={SCOPE}");
                 code = Console.ReadLine();
                 while (string.IsNullOrWhiteSpace(code))
                 {
@@ -56,12 +61,13 @@ namespace BlingIntegrationTagplus
                 if (token == null)
                 {
                     db.Add(new TagPlusToken("TagplusToken", code, expirationDate.ToString("dd/MM/yyyy HH:mm:ss")));
-                } else
+                }
+                else
                 {
                     token.Value = code;
                     token.ExpiresIn = expirationDate.ToString("dd/MM/yyyy HH:mm:ss");
                     db.Update(token);
-                }                
+                }
                 db.SaveChanges();
             }
             else
@@ -86,7 +92,71 @@ namespace BlingIntegrationTagplus
             TagPlusClient tagPlusClient = new TagPlusClient(code);
             foreach (PedidoItem pedido in pedidos.Retorno.Pedidos)
             {
-                // TODO
+                // Recupera o Cliente
+                int clienteId = tagPlusClient.GetCliente(pedido.Pedido.Cliente.Nome);
+                // Cria se não existir
+                if (clienteId == 0)
+                {
+                    ClienteBody cliente = new ClienteBody();
+                    cliente.RazaoSocial = pedido.Pedido.Cliente.Nome;
+                    if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Cnpj))
+                    {
+                        if (ValidateUtils.IsCpf(pedido.Pedido.Cliente.Cnpj))
+                        {
+                            cliente.Cpf = pedido.Pedido.Cliente.Cnpj;
+                        }
+                        else if (ValidateUtils.IsCnpj(pedido.Pedido.Cliente.Cnpj))
+                        {
+                            cliente.Cnpj = pedido.Pedido.Cliente.Cnpj;
+                        }
+                    }
+
+                    // Envia o novo cliente
+                    clienteId = tagPlusClient.PostCliente(cliente);
+                }
+
+                // Recupera os Itens
+                IList<Clients.TagPlus.Models.Pedidos.Item> itens = new List<Clients.TagPlus.Models.Pedidos.Item>();
+                for (int i = 0; i < pedido.Pedido.Itens.Count; i++)
+                {               
+                    Clients.Bling.Models.Pedidos.Item blingItem = pedido.Pedido.Itens[i].Item;
+                    int produtoServico = tagPlusClient.GetProduto(blingItem.Codigo);
+                    Clients.TagPlus.Models.Pedidos.Item tagPlusItem = new Clients.TagPlus.Models.Pedidos.Item();
+                    tagPlusItem.NumItem = i;
+                    tagPlusItem.ProdutoServico = produtoServico;
+                    tagPlusItem.Qtd = Int32.Parse(blingItem.Quantidade);
+                    tagPlusItem.ValorUnitario = float.Parse(blingItem.Valorunidade);
+                    tagPlusItem.ValorDesconto = float.Parse(blingItem.DescontoItem);
+                    itens.Add(tagPlusItem);
+                }
+
+                // Recupera as faturas
+                IList<Fatura> faturas = new List<Fatura>();
+                Fatura fatura = new Fatura();                
+                foreach (ParcelaItem parcelaWrapper in pedido.Pedido.Parcelas)
+                {
+                    Clients.Bling.Models.Pedidos.Parcela parcela = parcelaWrapper.Parcela;
+                    int formaPagamento = tagPlusClient.GetFormasPagamento(parcela.FormaPagamento.Descricao);
+                    // Converte a data de vencimento
+                    string date = DateTime.Parse(parcela.DataVencimento).ToString("yyyy-MM-dd");
+                    Clients.TagPlus.Models.Pedidos.Parcela parcelaTagPlus = new Clients.TagPlus.Models.Pedidos.Parcela();                    
+                    parcelaTagPlus.ValorParcela = float.Parse(parcela.Valor);
+                    parcelaTagPlus.DataVencimento = date;
+                    fatura.FormaPagamento = formaPagamento;
+                }
+                faturas.Add(fatura);
+
+                // Cria o corpo do pedido
+                PedidoBody body = new PedidoBody();
+                body.CodigoExterno = pedido.Pedido.Numero;
+                body.Cliente = clienteId;
+                body.Itens = itens;
+                body.Faturas = faturas;
+                body.ValorFrete = float.Parse(pedido.Pedido.Valorfrete);
+
+                // Envia o novo pedido
+                GetPedidosResponse response = tagPlusClient.PostPedidos(body);
+                Console.WriteLine($"Pedido cadastrado no TagPlus com o ID: {response.Id}");
             }
         }
     }
