@@ -38,8 +38,8 @@ namespace BlingIntegrationTagplus.Clients.Bling
         public PedidosResponse ExecuteGetOrder(DateTime dateStart, DateTime dateEnd)
         {
             // Formata a data
-            string dateStartString = $"{dateStart.Day}/{dateStart.Month}/{dateStart.Year}";
-            string dateEndString = $"{dateEnd.Day}/{dateEnd.Month}/{dateEnd.Year}";
+            string dateStartString = dateStart.ToString("dd/MM/yyyy");
+            string dateEndString = dateEnd.ToString("dd/MM/yyyy");
             var client = new RestClient("https://bling.com.br");
             var request = new RestRequest("Api/v2/pedidos/json", DataFormat.Json);
             request.AddQueryParameter("apikey", ApiKey);
