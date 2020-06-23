@@ -12,6 +12,7 @@ using dotenv.net.Utilities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace BlingIntegrationTagplus
@@ -124,9 +125,9 @@ namespace BlingIntegrationTagplus
                     Clients.TagPlus.Models.Pedidos.Item tagPlusItem = new Clients.TagPlus.Models.Pedidos.Item();
                     tagPlusItem.NumItem = i;
                     tagPlusItem.ProdutoServico = produtoServico;
-                    tagPlusItem.Qtd = Int32.Parse(blingItem.Quantidade);
-                    tagPlusItem.ValorUnitario = float.Parse(blingItem.Valorunidade);
-                    tagPlusItem.ValorDesconto = float.Parse(blingItem.DescontoItem);
+                    tagPlusItem.Qtd = Convert.ToInt32(float.Parse(blingItem.Quantidade, CultureInfo.InvariantCulture.NumberFormat));
+                    tagPlusItem.ValorUnitario = float.Parse(blingItem.Valorunidade, CultureInfo.InvariantCulture.NumberFormat);
+                    tagPlusItem.ValorDesconto = float.Parse(blingItem.DescontoItem, CultureInfo.InvariantCulture.NumberFormat);
                     itens.Add(tagPlusItem);
                 }
 
@@ -140,7 +141,7 @@ namespace BlingIntegrationTagplus
                     // Converte a data de vencimento
                     string date = DateTime.Parse(parcela.DataVencimento).ToString("yyyy-MM-dd");
                     Clients.TagPlus.Models.Pedidos.Parcela parcelaTagPlus = new Clients.TagPlus.Models.Pedidos.Parcela();                    
-                    parcelaTagPlus.ValorParcela = float.Parse(parcela.Valor);
+                    parcelaTagPlus.ValorParcela = float.Parse(parcela.Valor, CultureInfo.InvariantCulture.NumberFormat);
                     parcelaTagPlus.DataVencimento = date;
                     fatura.FormaPagamento = formaPagamento;
                 }
@@ -152,7 +153,7 @@ namespace BlingIntegrationTagplus
                 body.Cliente = clienteId;
                 body.Itens = itens;
                 body.Faturas = faturas;
-                body.ValorFrete = float.Parse(pedido.Pedido.Valorfrete);
+                body.ValorFrete = float.Parse(pedido.Pedido.Valorfrete, CultureInfo.InvariantCulture.NumberFormat);
 
                 // Envia o novo pedido
                 GetPedidosResponse response = tagPlusClient.PostPedidos(body);
