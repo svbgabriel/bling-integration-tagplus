@@ -19,7 +19,7 @@ namespace BlingIntegrationTagplus
     class Program
     {
         static readonly string CLIENT_ID = "r7Qww3H1q0aZxpHqQFKAwa47gYdWxHjW";
-        static readonly string SCOPE = "read:produtos+read:formas_pagamento+read:departamentos+read:clientes+read:usuarios+write:pedidos";
+        static readonly string SCOPE = "read:produtos+read:formas_pagamento+read:departamentos+read:usuarios+write:pedidos+write:clientes";
 
         static void Main(string[] args)
         {
