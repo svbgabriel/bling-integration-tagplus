@@ -27,6 +27,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             var request = new RestRequest("pedidos", DataFormat.Json);
             request.AddHeader("X-Api-Version", "2.0");
             request.AddHeader("Authorization", $"Bearer {AccessToken}");
+            request.AddHeader("Accept", "application/json");
             request.AddJsonBody(body);
             var response = client.Post(request);
 
@@ -125,6 +126,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             var request = new RestRequest("clientes", DataFormat.Json);
             request.AddHeader("X-Api-Version", "2.0");
             request.AddHeader("Authorization", $"Bearer {AccessToken}");
+            request.AddHeader("Accept", "application/json");
             request.AddJsonBody(cliente);
             var response = client.Post(request);
 
