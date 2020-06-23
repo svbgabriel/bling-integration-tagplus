@@ -89,26 +89,40 @@ namespace BlingIntegrationTagplus
                 Console.WriteLine($"Não foi possível recuperar os pedidos do Bling - {e.Message}");
                 Environment.Exit(-1);
             }
+
+            // Verifica se existem pedidos
+            if (pedidos.Retorno.Pedidos == null || pedidos.Retorno.Pedidos.Count == 0)
+            {
+                Console.WriteLine("Não foram encontrados pedidos no Bling");
+                Environment.Exit(0);
+            }
+
             // Envia os pedidos para o TagPlus
             TagPlusClient tagPlusClient = new TagPlusClient(code);
+            Console.WriteLine($"Foram encontrados {pedidos.Retorno.Pedidos.Count} pedido(s)");
             foreach (PedidoItem pedido in pedidos.Retorno.Pedidos)
             {
+                Console.WriteLine($"Tratando o Pedido {pedido.Pedido.Numero}");
                 // Recupera o Cliente
                 int clienteId = tagPlusClient.GetCliente(pedido.Pedido.Cliente.Nome);
                 // Cria se não existir
                 if (clienteId == 0)
                 {
+                    Console.WriteLine($"Cliente {pedido.Pedido.Cliente.Nome} não foi encontrado, cadastrando...");
                     ClienteBody cliente = new ClienteBody();
                     cliente.RazaoSocial = pedido.Pedido.Cliente.Nome;
+                    cliente.Ativo = true;
                     if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Cnpj))
                     {
                         if (ValidateUtils.IsCpf(pedido.Pedido.Cliente.Cnpj))
                         {
                             cliente.Cpf = pedido.Pedido.Cliente.Cnpj;
+                            cliente.Tipo = "F";
                         }
                         else if (ValidateUtils.IsCnpj(pedido.Pedido.Cliente.Cnpj))
                         {
                             cliente.Cnpj = pedido.Pedido.Cliente.Cnpj;
+                            cliente.Tipo = "J";
                         }
                     }
 
