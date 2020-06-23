@@ -43,7 +43,7 @@ namespace BlingIntegrationTagplus.Clients.Bling
             var client = new RestClient("https://bling.com.br");
             var request = new RestRequest("Api/v2/pedidos/json", DataFormat.Json);
             request.AddQueryParameter("apikey", ApiKey);
-            request.AddQueryParameter("filters", $"dataEmissao[{dateStartString} TO {dateEndString}];");
+            request.AddQueryParameter("filters", $"dataEmissao[{dateStartString} TO {dateEndString}]");
             var response = client.Get(request);
 
             if (response.StatusCode != HttpStatusCode.OK)
