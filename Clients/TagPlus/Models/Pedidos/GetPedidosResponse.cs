@@ -190,7 +190,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos
         public object DataConfirmacao { get; set; }
 
         [JsonProperty("valor_frete")]
-        public int ValorFrete { get; set; }
+        public float ValorFrete { get; set; }
 
         [JsonProperty("valor_desconto")]
         public int ValorDesconto { get; set; }
