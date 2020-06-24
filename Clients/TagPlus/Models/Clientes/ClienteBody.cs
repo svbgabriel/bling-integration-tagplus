@@ -7,16 +7,16 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Clientes
     {
 
         [JsonProperty("id")]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         [JsonProperty("descricao")]
         public string Descricao { get; set; }
 
         [JsonProperty("tipo_contato")]
-        public int TipoContato { get; set; }
+        public int? TipoContato { get; set; }
 
         [JsonProperty("tipo_cadastro")]
-        public int TipoCadastro { get; set; }
+        public int? TipoCadastro { get; set; }
 
         [JsonProperty("detalhes")]
         public string Detalhes { get; set; }
@@ -29,7 +29,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Clientes
     {
 
         [JsonProperty("id")]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         [JsonProperty("principal")]
         public bool Principal { get; set; }
@@ -50,20 +50,20 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Clientes
         public string Bairro { get; set; }
 
         [JsonProperty("pais")]
-        public int Pais { get; set; }
+        public int? Pais { get; set; }
 
         [JsonProperty("informacoes_adicionais")]
         public string InformacoesAdicionais { get; set; }
 
         [JsonProperty("tipo_cadastro")]
-        public int TipoCadastro { get; set; }
+        public int? TipoCadastro { get; set; }
     }
 
     public class Lancamento
     {
 
         [JsonProperty("id_financeiro")]
-        public int IdFinanceiro { get; set; }
+        public int? IdFinanceiro { get; set; }
 
         [JsonProperty("descricao")]
         public string Descricao { get; set; }
@@ -72,10 +72,10 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Clientes
         public string Vencimento { get; set; }
 
         [JsonProperty("valor")]
-        public int Valor { get; set; }
+        public int? Valor { get; set; }
 
         [JsonProperty("valor_com_juros")]
-        public int ValorComJuros { get; set; }
+        public int? ValorComJuros { get; set; }
 
         [JsonProperty("email")]
         public string Email { get; set; }
@@ -91,10 +91,10 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Clientes
         public IList<Lancamento> Lancamentos { get; set; }
 
         [JsonProperty("total")]
-        public int Total { get; set; }
+        public int? Total { get; set; }
 
         [JsonProperty("total_com_juros")]
-        public int TotalComJuros { get; set; }
+        public int? TotalComJuros { get; set; }
     }
 
     public class NaoConfirmadoNaoVencido
@@ -104,10 +104,10 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Clientes
         public IList<Lancamento> Lancamentos { get; set; }
 
         [JsonProperty("total")]
-        public int Total { get; set; }
+        public int? Total { get; set; }
 
         [JsonProperty("total_com_juros")]
-        public int TotalComJuros { get; set; }
+        public int? TotalComJuros { get; set; }
     }
 
     public class Confirmado
@@ -117,10 +117,10 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Clientes
         public IList<Lancamento> Lancamentos { get; set; }
 
         [JsonProperty("total")]
-        public int Total { get; set; }
+        public int? Total { get; set; }
 
         [JsonProperty("total_com_juros")]
-        public int TotalComJuros { get; set; }
+        public int? TotalComJuros { get; set; }
     }
 
     public class SaldoDevedor
@@ -147,7 +147,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Clientes
         public string CodigoExterno { get; set; }
 
         [JsonProperty("id_entidade")]
-        public int IdEntidade { get; set; }
+        public int? IdEntidade { get; set; }
 
         [JsonProperty("ativo")]
         public bool Ativo { get; set; }
@@ -204,13 +204,13 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Clientes
         public string EstadoCivil { get; set; }
 
         [JsonProperty("renda_mensal")]
-        public int RendaMensal { get; set; }
+        public int? RendaMensal { get; set; }
 
         [JsonProperty("recebe_email")]
         public bool RecebeEmail { get; set; }
 
         [JsonProperty("limite_credito")]
-        public int LimiteCredito { get; set; }
+        public int? LimiteCredito { get; set; }
 
         [JsonProperty("informacao_adicional")]
         public string InformacaoAdicional { get; set; }

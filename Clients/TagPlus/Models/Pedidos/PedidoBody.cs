@@ -7,25 +7,25 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos
     {
 
         [JsonProperty("item")]
-        public int NumItem { get; set; }
+        public int? NumItem { get; set; }
 
         [JsonProperty("produto_servico")]
-        public int ProdutoServico { get; set; }
+        public int? ProdutoServico { get; set; }
 
         [JsonProperty("qtd")]
-        public int Qtd { get; set; }
+        public int? Qtd { get; set; }
 
         [JsonProperty("valor_unitario")]
-        public float ValorUnitario { get; set; }
+        public float? ValorUnitario { get; set; }
 
         [JsonProperty("valor_desconto")]
-        public float ValorDesconto { get; set; }
+        public float? ValorDesconto { get; set; }
 
         [JsonProperty("detalhes")]
         public string Detalhes { get; set; }
 
         [JsonProperty("valor_venda")]
-        public float ValorVenda { get; set; }
+        public float? ValorVenda { get; set; }
     }
 
     public class Parcela
@@ -35,7 +35,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos
         public string Documento { get; set; }
 
         [JsonProperty("valor_parcela")]
-        public float ValorParcela { get; set; }
+        public float? ValorParcela { get; set; }
 
         [JsonProperty("data_vencimento")]
         public string DataVencimento { get; set; }
@@ -45,7 +45,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos
     {
 
         [JsonProperty("forma_pagamento")]
-        public int FormaPagamento { get; set; }
+        public int? FormaPagamento { get; set; }
 
         [JsonProperty("parcelas")]
         public IList<Parcela> Parcelas { get; set; }
@@ -67,13 +67,13 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos
         public string HoraEntrega { get; set; }
 
         [JsonProperty("departamento")]
-        public int Departamento { get; set; }
+        public int? Departamento { get; set; }
 
         [JsonProperty("vendedor")]
-        public int Vendedor { get; set; }
+        public int? Vendedor { get; set; }
 
         [JsonProperty("cliente")]
-        public int Cliente { get; set; }
+        public int? Cliente { get; set; }
 
         [JsonProperty("itens")]
         public IList<Item> Itens { get; set; }
@@ -82,13 +82,13 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos
         public IList<Fatura> Faturas { get; set; }
 
         [JsonProperty("valor_frete")]
-        public float ValorFrete { get; set; }
+        public float? ValorFrete { get; set; }
 
         [JsonProperty("valor_desconto")]
-        public float ValorDesconto { get; set; }
+        public float? ValorDesconto { get; set; }
 
         [JsonProperty("valor_acrescimo")]
-        public float ValorAcrescimo { get; set; }
+        public float? ValorAcrescimo { get; set; }
 
         [JsonProperty("observacoes")]
         public string Observacoes { get; set; }
