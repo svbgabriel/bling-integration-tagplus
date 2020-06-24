@@ -81,16 +81,16 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos
         public int Qtd { get; set; }
 
         [JsonProperty("valor_unitario")]
-        public double ValorUnitario { get; set; }
+        public float ValorUnitario { get; set; }
 
         [JsonProperty("valor_desconto")]
-        public int ValorDesconto { get; set; }
+        public float ValorDesconto { get; set; }
 
         [JsonProperty("detalhes")]
         public string Detalhes { get; set; }
 
         [JsonProperty("valor_subtotal")]
-        public double ValorSubtotal { get; set; }
+        public float ValorSubtotal { get; set; }
     }
 
     public class FormaPagamento
@@ -116,7 +116,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos
         public string Documento { get; set; }
 
         [JsonProperty("valor_parcela")]
-        public int ValorParcela { get; set; }
+        public float ValorParcela { get; set; }
 
         [JsonProperty("data_vencimento")]
         public string DataVencimento { get; set; }
@@ -147,7 +147,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos
         public int QtdParcelas { get; set; }
 
         [JsonProperty("valor_total_parcelas")]
-        public int ValorTotalParcelas { get; set; }
+        public float ValorTotalParcelas { get; set; }
 
         [JsonProperty("parcelas")]
         public IList<ParcelaResponse> Parcelas { get; set; }
@@ -193,13 +193,13 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos
         public float ValorFrete { get; set; }
 
         [JsonProperty("valor_desconto")]
-        public int ValorDesconto { get; set; }
+        public float ValorDesconto { get; set; }
 
         [JsonProperty("valor_acrescimo")]
-        public int ValorAcrescimo { get; set; }
+        public float ValorAcrescimo { get; set; }
 
         [JsonProperty("valor_total")]
-        public double ValorTotal { get; set; }
+        public float ValorTotal { get; set; }
 
         [JsonProperty("observacoes")]
         public string Observacoes { get; set; }

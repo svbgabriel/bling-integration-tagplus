@@ -127,13 +127,20 @@ namespace BlingIntegrationTagplus
                     }
 
                     // Envia o novo cliente
-                    clienteId = tagPlusClient.PostCliente(cliente);
+                    try
+                    {
+                        clienteId = tagPlusClient.PostCliente(cliente);
+                    }
+                    catch (TagPlusException e)
+                    {
+                        Console.WriteLine($"Não foi possível cadastrar o cliente: {e.Message}");
+                    }
                 }
 
                 // Recupera os Itens
                 IList<Clients.TagPlus.Models.Pedidos.Item> itens = new List<Clients.TagPlus.Models.Pedidos.Item>();
                 for (int i = 0; i < pedido.Pedido.Itens.Count; i++)
-                {               
+                {
                     Clients.Bling.Models.Pedidos.Item blingItem = pedido.Pedido.Itens[i].Item;
                     int produtoServico = tagPlusClient.GetProduto(blingItem.Codigo);
                     Clients.TagPlus.Models.Pedidos.Item tagPlusItem = new Clients.TagPlus.Models.Pedidos.Item();
@@ -155,7 +162,7 @@ namespace BlingIntegrationTagplus
                     int formaPagamento = tagPlusClient.GetFormasPagamento(parcela.FormaPagamento.Descricao);
                     // Converte a data de vencimento
                     string date = DateTime.Parse(parcela.DataVencimento).ToString("yyyy-MM-dd");
-                    Clients.TagPlus.Models.Pedidos.Parcela parcelaTagPlus = new Clients.TagPlus.Models.Pedidos.Parcela();                    
+                    Clients.TagPlus.Models.Pedidos.Parcela parcelaTagPlus = new Clients.TagPlus.Models.Pedidos.Parcela();
                     parcelaTagPlus.ValorParcela = float.Parse(parcela.Valor, CultureInfo.InvariantCulture.NumberFormat);
                     parcelaTagPlus.DataVencimento = date;
                     fatura.Parcelas.Add(parcelaTagPlus);
@@ -172,8 +179,15 @@ namespace BlingIntegrationTagplus
                 body.ValorFrete = float.Parse(pedido.Pedido.Valorfrete, CultureInfo.InvariantCulture.NumberFormat);
 
                 // Envia o novo pedido
-                GetPedidosResponse response = tagPlusClient.PostPedidos(body);
-                Console.WriteLine($"Pedido cadastrado no TagPlus com o ID: {response.Id}");
+                try
+                {
+                    GetPedidosResponse response = tagPlusClient.PostPedidos(body);
+                    Console.WriteLine($"Pedido cadastrado no TagPlus com o ID: {response.Id}");
+                }
+                catch (TagPlusException e)
+                {
+                    Console.WriteLine($"Não foi possível cadastrar o pedido: {e.Message}");
+                }
             }
         }
     }
