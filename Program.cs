@@ -147,7 +147,8 @@ namespace BlingIntegrationTagplus
 
                 // Recupera as faturas
                 IList<Fatura> faturas = new List<Fatura>();
-                Fatura fatura = new Fatura();                
+                Fatura fatura = new Fatura();
+                fatura.Parcelas = new List<Clients.TagPlus.Models.Pedidos.Parcela>();
                 foreach (ParcelaItem parcelaWrapper in pedido.Pedido.Parcelas)
                 {
                     Clients.Bling.Models.Pedidos.Parcela parcela = parcelaWrapper.Parcela;
@@ -157,6 +158,7 @@ namespace BlingIntegrationTagplus
                     Clients.TagPlus.Models.Pedidos.Parcela parcelaTagPlus = new Clients.TagPlus.Models.Pedidos.Parcela();                    
                     parcelaTagPlus.ValorParcela = float.Parse(parcela.Valor, CultureInfo.InvariantCulture.NumberFormat);
                     parcelaTagPlus.DataVencimento = date;
+                    fatura.Parcelas.Add(parcelaTagPlus);
                     fatura.FormaPagamento = formaPagamento;
                 }
                 faturas.Add(fatura);
