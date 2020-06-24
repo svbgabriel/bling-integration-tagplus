@@ -7,6 +7,7 @@ using BlingIntegrationTagplus.Clients.TagPlus.Models.Produtos;
 using BlingIntegrationTagplus.Exceptions;
 using Newtonsoft.Json;
 using RestSharp;
+using RestSharp.Serializers.NewtonsoftJson;
 using System.Collections.Generic;
 using System.Net;
 
@@ -24,6 +25,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
         public GetPedidosResponse PostPedidos(PedidoBody body)
         {
             var client = new RestClient("https://api.tagplus.com.br");
+            client.UseNewtonsoftJson();
             var request = new RestRequest("pedidos", DataFormat.Json);
             request.AddHeader("X-Api-Version", "2.0");
             request.AddHeader("Authorization", $"Bearer {AccessToken}");
@@ -120,14 +122,15 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             }
         }
 
-        public int PostCliente(ClienteBody cliente)
+        public int PostCliente(ClienteBody clienteBody)
         {
             var client = new RestClient("https://api.tagplus.com.br");
+            client.UseNewtonsoftJson();
             var request = new RestRequest("clientes", DataFormat.Json);
             request.AddHeader("X-Api-Version", "2.0");
             request.AddHeader("Authorization", $"Bearer {AccessToken}");
             request.AddHeader("Accept", "application/json");
-            request.AddJsonBody(cliente);
+            request.AddJsonBody(clienteBody);
             var response = client.Post(request);
 
             if (response.StatusCode != HttpStatusCode.Created)
@@ -137,14 +140,8 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             }
             else
             {
-                var clientes = JsonConvert.DeserializeObject<IList<GetClientesResponse>>(response.Content);
-                // Caso não seja encontrado retorna 0
-                if (clientes.Count == 0)
-                {
-                    return 0;
-                }
-                int id = clientes[0].Id;
-                return id;
+                var cliente = JsonConvert.DeserializeObject<GetClientesResponse>(response.Content);
+                return cliente.Id;
             }
         }
 
