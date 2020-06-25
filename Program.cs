@@ -66,8 +66,24 @@ namespace BlingIntegrationTagplus
                 Console.WriteLine();
                 Console.WriteLine("--------------------------------------------");
                 Console.WriteLine($"Tratando o Pedido {pedido.Pedido.Numero}");
-                // Recupera o Cliente
-                int clienteId = tagPlusClient.GetCliente(pedido.Pedido.Cliente.Nome);
+                // Tenta recupera o Cliente de várias maneiras
+                int clienteId = 0;
+                if (pedido.Pedido.Cliente.Cnpj != null)
+                {
+                    if (ValidateUtils.IsCpf(pedido.Pedido.Cliente.Cnpj))
+                    {
+                        clienteId = tagPlusClient.GetClienteByCpf(pedido.Pedido.Cliente.Cnpj);
+                    }
+                    else if (ValidateUtils.IsCnpj(pedido.Pedido.Cliente.Cnpj))
+                    {
+                        clienteId = tagPlusClient.GetClienteByCnpj(pedido.Pedido.Cliente.Cnpj);
+                    }
+
+                }
+                else
+                {
+                    clienteId = tagPlusClient.GetClienteByRazaoSocial(pedido.Pedido.Cliente.Nome);
+                }
                 // Cria se não existir
                 if (clienteId == 0)
                 {

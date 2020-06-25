@@ -94,13 +94,69 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             }
         }
 
-        public int GetCliente(string nome)
+        public int GetClienteByRazaoSocial(string nome)
         {
             var client = new RestClient("https://api.tagplus.com.br");
             var request = new RestRequest("clientes", DataFormat.Json);
             request.AddHeader("X-Api-Version", "2.0");
             request.AddHeader("Authorization", $"Bearer {AccessToken}");
             request.AddQueryParameter("razao_social", nome);
+            request.AddHeader("Accept", "application/json");
+            var response = client.Get(request);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
+                throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
+            }
+            else
+            {
+                var clientes = JsonConvert.DeserializeObject<IList<GetClientesResponse>>(response.Content);
+                // Caso não seja encontrado retorna 0
+                if (clientes.Count == 0)
+                {
+                    return 0;
+                }
+                int id = clientes[0].Id;
+                return id;
+            }
+        }
+
+        public int GetClienteByCpf(string cpf)
+        {
+            var client = new RestClient("https://api.tagplus.com.br");
+            var request = new RestRequest("clientes", DataFormat.Json);
+            request.AddHeader("X-Api-Version", "2.0");
+            request.AddHeader("Authorization", $"Bearer {AccessToken}");
+            request.AddQueryParameter("cpf", cpf);
+            request.AddHeader("Accept", "application/json");
+            var response = client.Get(request);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
+                throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
+            }
+            else
+            {
+                var clientes = JsonConvert.DeserializeObject<IList<GetClientesResponse>>(response.Content);
+                // Caso não seja encontrado retorna 0
+                if (clientes.Count == 0)
+                {
+                    return 0;
+                }
+                int id = clientes[0].Id;
+                return id;
+            }
+        }
+
+        public int GetClienteByCnpj(string cnpj)
+        {
+            var client = new RestClient("https://api.tagplus.com.br");
+            var request = new RestRequest("clientes", DataFormat.Json);
+            request.AddHeader("X-Api-Version", "2.0");
+            request.AddHeader("Authorization", $"Bearer {AccessToken}");
+            request.AddQueryParameter("cnpj", cnpj);
             request.AddHeader("Accept", "application/json");
             var response = client.Get(request);
 
