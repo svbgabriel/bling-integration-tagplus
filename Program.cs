@@ -63,6 +63,7 @@ namespace BlingIntegrationTagplus
             Console.WriteLine($"Foram encontrados {pedidos.Retorno.Pedidos.Count} pedido(s)");
             foreach (PedidoItem pedido in pedidos.Retorno.Pedidos)
             {
+                Console.WriteLine();
                 Console.WriteLine("--------------------------------------------");
                 Console.WriteLine($"Tratando o Pedido {pedido.Pedido.Numero}");
                 // Recupera o Cliente
@@ -87,6 +88,22 @@ namespace BlingIntegrationTagplus
                             cliente.Tipo = "J";
                         }
                     }
+
+                    // Preenche as informações de contato
+                    cliente.Contatos = new List<Contato>();
+                    Contato contato = new Contato();
+                    // TODO: Completar as informações de Contato
+                    cliente.Contatos.Add(contato);
+
+                    // Preenche o endereço
+                    cliente.Enderecos = new List<Endereco>();
+                    Endereco endereco = new Endereco();
+                    endereco.Logradouro = pedido.Pedido.Transporte.EnderecoEntrega.Endereco;
+                    endereco.Numero = pedido.Pedido.Transporte.EnderecoEntrega.Numero;
+                    endereco.Bairro = pedido.Pedido.Transporte.EnderecoEntrega.Bairro;
+                    endereco.Complemento = pedido.Pedido.Transporte.EnderecoEntrega.Complemento;
+                    endereco.Cep = pedido.Pedido.Transporte.EnderecoEntrega.Cep.Replace(".", "");
+                    cliente.Enderecos.Add(endereco);
 
                     // Envia o novo cliente
                     try
@@ -155,6 +172,7 @@ namespace BlingIntegrationTagplus
                 }
 
                 Console.WriteLine("--------------------------------------------");
+                Console.WriteLine();
             }
 
             Console.WriteLine("Processo finalizado");
