@@ -26,7 +26,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models
     public class TagPlusResponseError
     {
         [JsonProperty("error_code")]
-        public int ErrorCode { get; set; }
+        public string ErrorCode { get; set; }
 
         [JsonProperty("message")]
         public string Message { get; set; }
