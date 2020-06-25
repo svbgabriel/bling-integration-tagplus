@@ -102,6 +102,7 @@ namespace BlingIntegrationTagplus
             Console.WriteLine($"Foram encontrados {pedidos.Retorno.Pedidos.Count} pedido(s)");
             foreach (PedidoItem pedido in pedidos.Retorno.Pedidos)
             {
+                Console.WriteLine("--------------------------------------------");
                 Console.WriteLine($"Tratando o Pedido {pedido.Pedido.Numero}");
                 // Recupera o Cliente
                 int clienteId = tagPlusClient.GetCliente(pedido.Pedido.Cliente.Nome);
@@ -177,6 +178,9 @@ namespace BlingIntegrationTagplus
                 body.Itens = itens;
                 body.Faturas = faturas;
                 body.ValorFrete = float.Parse(pedido.Pedido.Valorfrete, CultureInfo.InvariantCulture.NumberFormat);
+                body.Observacoes = $"Pedido: {pedido.Pedido.Numero}\n" +
+                    $"Observações: {pedido.Pedido.Observacoes.Trim()}\nObservações internas: {pedido.Pedido.Observacaointerna}\n" +
+                    $"Número Pedido Loja: {pedido.Pedido.NumeroPedidoLoja}\nTipo da Integração: {pedido.Pedido.TipoIntegracao}";
 
                 // Envia o novo pedido
                 try
@@ -188,7 +192,11 @@ namespace BlingIntegrationTagplus
                 {
                     Console.WriteLine($"Não foi possível cadastrar o pedido: {e.Message}");
                 }
+
+                Console.WriteLine("--------------------------------------------");
             }
+
+            Console.WriteLine("Processo finalizado");
         }
     }
 }
