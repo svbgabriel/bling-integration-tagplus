@@ -15,7 +15,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus.Models.Produtos
         public string Descricao { get; set; }
 
         [JsonProperty("valor_venda_varejo")]
-        public int ValorVendaVarejo { get; set; }
+        public float ValorVendaVarejo { get; set; }
     }
 
 }
