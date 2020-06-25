@@ -103,6 +103,7 @@ namespace BlingIntegrationTagplus
                     endereco.Bairro = pedido.Pedido.Transporte.EnderecoEntrega.Bairro;
                     endereco.Complemento = pedido.Pedido.Transporte.EnderecoEntrega.Complemento;
                     endereco.Cep = pedido.Pedido.Transporte.EnderecoEntrega.Cep.Replace(".", "");
+                    endereco.Principal = true;
                     cliente.Enderecos.Add(endereco);
 
                     // Envia o novo cliente
