@@ -89,11 +89,11 @@ namespace BlingIntegrationTagplus
                         }
                     }
 
-                    // Preenche as informações de contato
-                    cliente.Contatos = new List<Contato>();
-                    Contato contato = new Contato();
                     // TODO: Completar as informações de Contato
-                    cliente.Contatos.Add(contato);
+                    // Preenche as informações de contato
+                    // cliente.Contatos = new List<Contato>();
+                    // Contato contato = new Contato();                    
+                    // cliente.Contatos.Add(contato);
 
                     // Preenche o endereço
                     cliente.Enderecos = new List<Endereco>();
