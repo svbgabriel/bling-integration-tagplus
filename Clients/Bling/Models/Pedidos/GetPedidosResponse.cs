@@ -282,7 +282,7 @@ namespace BlingIntegrationTagplus.Clients.Bling.Models.Pedidos
         public IList<PedidoItem> Pedidos { get; set; }
     }
 
-    public partial class PedidosResponse
+    public partial class GetPedidosResponse
     {
 
         [JsonProperty("retorno")]

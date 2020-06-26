@@ -40,7 +40,7 @@ namespace BlingIntegrationTagplus
             Console.WriteLine();
             Console.WriteLine("Procurando pedidos no Bling...");
             var blingClient = new BlingClient(blingApiKey);
-            PedidosResponse pedidos = null;
+            Clients.Bling.Models.Pedidos.GetPedidosResponse pedidos = null;
             try
             {
                 pedidos = blingClient.ExecuteGetOrder();
@@ -229,7 +229,7 @@ namespace BlingIntegrationTagplus
                 // Envia o novo pedido
                 try
                 {
-                    GetPedidosResponse response = tagPlusClient.PostPedidos(body);
+                    Clients.TagPlus.Models.Pedidos.GetPedidosResponse response = tagPlusClient.PostPedidos(body);
                     Console.WriteLine($"Pedido cadastrado no TagPlus com o ID: {response.Id}");
                 }
                 catch (TagPlusException e)

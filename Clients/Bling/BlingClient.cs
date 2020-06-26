@@ -1,5 +1,5 @@
-using BlingIntegrationTagplus.Exceptions;
 using BlingIntegrationTagplus.Clients.Bling.Models.Pedidos;
+using BlingIntegrationTagplus.Exceptions;
 using Newtonsoft.Json;
 using RestSharp;
 using System;
@@ -16,7 +16,7 @@ namespace BlingIntegrationTagplus.Clients.Bling
             ApiKey = apiKey;
         }
 
-        public PedidosResponse ExecuteGetOrder()
+        public GetPedidosResponse ExecuteGetOrder()
         {
             var client = new RestClient("https://bling.com.br");
             var request = new RestRequest("Api/v2/pedidos/json", DataFormat.Json);
@@ -30,12 +30,12 @@ namespace BlingIntegrationTagplus.Clients.Bling
             }
             else
             {
-                var pedidos = JsonConvert.DeserializeObject<PedidosResponse>(response.Content);
+                var pedidos = JsonConvert.DeserializeObject<GetPedidosResponse>(response.Content);
                 return pedidos;
             }
         }
 
-        public PedidosResponse ExecuteGetOrder(DateTime dateStart, DateTime dateEnd)
+        public GetPedidosResponse ExecuteGetOrder(DateTime dateStart, DateTime dateEnd)
         {
             // Formata a data
             string dateStartString = dateStart.ToString("dd/MM/yyyy");
@@ -53,8 +53,29 @@ namespace BlingIntegrationTagplus.Clients.Bling
             }
             else
             {
-                var pedidos = JsonConvert.DeserializeObject<PedidosResponse>(response.Content);
+                var pedidos = JsonConvert.DeserializeObject<GetPedidosResponse>(response.Content);
                 return pedidos;
+            }
+        }
+
+        public PutPedidosResponse ExecuteUpdateOrder(string numero, string situacao)
+        {
+            string xml = $"<?xml version=\"1.0\" encoding=\"UTF - 8\"?><pedido><idSituacao>{situacao}</idSituacao></pedido>";
+            var client = new RestClient("https://bling.com.br");
+            var request = new RestRequest($"Api/v2/pedidos/{numero}/json");
+            request.AddQueryParameter("apikey", ApiKey);
+            request.AddQueryParameter("xml", xml);
+            var response = client.Put(request);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                var error = JsonConvert.DeserializeObject<PedidosResponseError>(response.Content);
+                throw new BlingException($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
+            }
+            else
+            {
+                var pedido = JsonConvert.DeserializeObject<PutPedidosResponse>(response.Content);
+                return pedido;
             }
         }
     }
