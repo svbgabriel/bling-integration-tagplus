@@ -4,6 +4,7 @@ using BlingIntegrationTagplus.Clients.TagPlus.Models.Departamentos;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.FormasPagamento;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.Produtos;
+using BlingIntegrationTagplus.Clients.TagPlus.Models.TiposContatos;
 using BlingIntegrationTagplus.Exceptions;
 using Newtonsoft.Json;
 using RestSharp;
@@ -253,6 +254,34 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
                     return 0;
                 }
                 int id = formas[0].Id;
+                return id;
+            }
+        }
+
+        public int GetTiposContatos(string descricao)
+        {
+            var client = new RestClient("https://api.tagplus.com.br");
+            var request = new RestRequest("tipos_contatos", DataFormat.Json);
+            request.AddHeader("X-Api-Version", "2.0");
+            request.AddHeader("Authorization", $"Bearer {AccessToken}");
+            request.AddQueryParameter("descricao", descricao);
+            request.AddHeader("Accept", "application/json");
+            var response = client.Get(request);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
+                throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
+            }
+            else
+            {
+                var tiposContatos = JsonConvert.DeserializeObject<IList<GetTiposContatosResponse>>(response.Content);
+                // Caso não seja encontrado retorna 0
+                if (tiposContatos.Count == 0)
+                {
+                    return 0;
+                }
+                int id = tiposContatos[0].Id;
                 return id;
             }
         }

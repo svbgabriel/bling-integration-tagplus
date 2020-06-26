@@ -8,7 +8,7 @@ namespace BlingIntegrationTagplus.Utils
     public class DBUtils
     {
         static readonly string CLIENT_ID = "r7Qww3H1q0aZxpHqQFKAwa47gYdWxHjW";
-        static readonly string SCOPE = "read:produtos+read:formas_pagamento+read:departamentos+read:usuarios+write:pedidos+write:clientes";
+        static readonly string SCOPE = "read:produtos+read:formas_pagamento+read:departamentos+read:usuarios+read:tipos_contatos+write:pedidos+write:clientes";
 
         public static string RetriveTagPlusToken(IntegrationContext db)
         {

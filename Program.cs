@@ -105,22 +105,71 @@ namespace BlingIntegrationTagplus
                         }
                     }
 
-                    // TODO: Completar as informações de Contato
                     // Preenche as informações de contato
-                    // cliente.Contatos = new List<Contato>();
-                    // Contato contato = new Contato();                    
-                    // cliente.Contatos.Add(contato);
+                    cliente.Contatos = new List<Contato>();
+                    // Verifica se existe o e-mail
+                    if (pedido.Pedido.Cliente.Email != null)
+                    {
+                        int id = tagPlusClient.GetTiposContatos("Email");
+                        Contato email = new Contato();
+                        email.TipoContato = id;
+                        email.Descricao = pedido.Pedido.Cliente.Email;
+                        email.Principal = true;
+                        cliente.Contatos.Add(email);
+                    }
+                    // Verifica se existe o celular
+                    if (pedido.Pedido.Cliente.Celular != null)
+                    {
+                        int id = tagPlusClient.GetTiposContatos("Celular");
+                        Contato celular = new Contato();
+                        celular.TipoContato = id;
+                        celular.Descricao = pedido.Pedido.Cliente.Celular;
+                        celular.Principal = true;
+                        cliente.Contatos.Add(celular);
+                    }
+                    // Verifica se existe o telefone
+                    if (pedido.Pedido.Cliente.Fone != null)
+                    {
+                        int id = tagPlusClient.GetTiposContatos("Telefone");
+                        Contato fone = new Contato();
+                        fone.Id = id;
+                        fone.Descricao = pedido.Pedido.Cliente.Fone;
+                        fone.Principal = true;
+                        cliente.Contatos.Add(fone);
+                    }
 
-                    // Preenche o endereço
-                    cliente.Enderecos = new List<Endereco>();
-                    Endereco endereco = new Endereco();
-                    endereco.Logradouro = pedido.Pedido.Transporte.EnderecoEntrega.Endereco;
-                    endereco.Numero = pedido.Pedido.Transporte.EnderecoEntrega.Numero;
-                    endereco.Bairro = pedido.Pedido.Transporte.EnderecoEntrega.Bairro;
-                    endereco.Complemento = pedido.Pedido.Transporte.EnderecoEntrega.Complemento;
-                    endereco.Cep = pedido.Pedido.Transporte.EnderecoEntrega.Cep.Replace(".", "");
-                    endereco.Principal = true;
-                    cliente.Enderecos.Add(endereco);
+                    // Caso não seja encontrado nenhum contrato, remove do cadastro
+                    if (cliente.Contatos.Count == 0)
+                    {
+                        cliente.Contatos = null;
+                    }
+
+                    // Preenche o endereço, se estiver disponível
+                    if (pedido.Pedido.Transporte != null)
+                    {
+                        cliente.Enderecos = new List<Endereco>();
+                        Endereco endereco = new Endereco();
+                        endereco.Logradouro = pedido.Pedido.Transporte.EnderecoEntrega.Endereco;
+                        endereco.Numero = pedido.Pedido.Transporte.EnderecoEntrega.Numero;
+                        endereco.Bairro = pedido.Pedido.Transporte.EnderecoEntrega.Bairro;
+                        endereco.Complemento = pedido.Pedido.Transporte.EnderecoEntrega.Complemento;
+                        endereco.Cep = pedido.Pedido.Transporte.EnderecoEntrega.Cep.Replace(".", "");
+                        endereco.Principal = true;
+                        cliente.Enderecos.Add(endereco);
+                    }
+                    else if (pedido.Pedido.Cliente.Endereco != null && pedido.Pedido.Cliente.Numero != null
+                        && pedido.Pedido.Cliente.Cep != null && pedido.Pedido.Cliente.Bairro != null)
+                    {
+                        cliente.Enderecos = new List<Endereco>();
+                        Endereco endereco = new Endereco();
+                        endereco.Logradouro = pedido.Pedido.Cliente.Endereco;
+                        endereco.Numero = pedido.Pedido.Cliente.Numero;
+                        endereco.Bairro = pedido.Pedido.Cliente.Bairro;
+                        endereco.Complemento = pedido.Pedido.Cliente.Complemento;
+                        endereco.Cep = pedido.Pedido.Cliente.Cep.Replace(".", "");
+                        endereco.Principal = true;
+                        cliente.Enderecos.Add(endereco);
+                    }
 
                     // Envia o novo cliente
                     try
