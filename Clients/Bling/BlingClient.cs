@@ -59,6 +59,26 @@ namespace BlingIntegrationTagplus.Clients.Bling
             }
         }
 
+        public GetPedidosResponse ExecuteGetOrder(string situacaoId)
+        {
+            var client = new RestClient("https://bling.com.br");
+            var request = new RestRequest("Api/v2/pedidos/json", DataFormat.Json);
+            request.AddQueryParameter("apikey", ApiKey);
+            request.AddQueryParameter("filters", $"idSituacao[{situacaoId}]");
+            var response = client.Get(request);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                var error = JsonConvert.DeserializeObject<PedidosResponseError>(response.Content);
+                throw new BlingException($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
+            }
+            else
+            {
+                var pedidos = JsonConvert.DeserializeObject<GetPedidosResponse>(response.Content);
+                return pedidos;
+            }
+        }
+
         public GetSituacaoResponse ExecuteGetSituacao()
         {
             var client = new RestClient("https://bling.com.br");

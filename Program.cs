@@ -37,14 +37,23 @@ namespace BlingIntegrationTagplus
             db.Database.Migrate();
             // Verifica se o Token do Tagplus já está no banco de dados e válido
             string code = DBUtils.RetriveTagPlusToken(db);
+
+            // Inicializa o cliente do Bling
+            var blingClient = new BlingClient(blingApiKey);
+
+            // Encontra as situações
+            var situacoes = blingClient.ExecuteGetSituacao();
+            var situacaoImportado = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Importado no TagPlus"));
+            var situacaoEmAberto = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Em aberto"));
+
             // Recupera os pedidos do Bling
             Console.WriteLine();
             Console.WriteLine("Procurando pedidos no Bling...");
-            var blingClient = new BlingClient(blingApiKey);
+
             Clients.Bling.Models.Pedidos.GetPedidosResponse pedidos = null;
             try
             {
-                pedidos = blingClient.ExecuteGetOrder();
+                pedidos = blingClient.ExecuteGetOrder(situacaoEmAberto.Situacao.Id);
             }
             catch (BlingException e)
             {
@@ -58,11 +67,6 @@ namespace BlingIntegrationTagplus
                 Console.WriteLine("Não foram encontrados pedidos no Bling");
                 Environment.Exit(0);
             }
-
-            // Encontra as situações
-            var situacoes = blingClient.ExecuteGetSituacao();
-            var situacaoImportado = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Importado no TagPlus"));
-            var situacaoEmAberto = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Em aberto"));
 
             TagPlusClient tagPlusClient = new TagPlusClient(code);
 
@@ -268,7 +272,17 @@ namespace BlingIntegrationTagplus
                     Console.WriteLine($"Não foi possível cadastrar o pedido: {e.Message}");
                 }
 
-                // TODO: Atualiza a situação no Bling
+                // Atualiza a situação no Bling
+                Console.WriteLine("Atualizando a situação no Bling");
+                try
+                {
+                    var pedidoUpdated = blingClient.ExecuteUpdateOrder(pedido.Pedido.Numero, situacaoImportado.Situacao.Id);
+                    Console.WriteLine($"O pedido {pedido.Pedido.Numero} foi atualizado");
+                }
+                catch (BlingException e)
+                {
+                    Console.WriteLine($"Não foi possível atualizar o pedido {pedido.Pedido.Numero} no Bling: {e.Message}");
+                }
 
                 Console.WriteLine("--------------------------------------------");
                 Console.WriteLine();
