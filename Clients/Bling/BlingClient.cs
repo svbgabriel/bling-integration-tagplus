@@ -1,4 +1,5 @@
 using BlingIntegrationTagplus.Clients.Bling.Models.Pedidos;
+using BlingIntegrationTagplus.Clients.Bling.Models.Situacao;
 using BlingIntegrationTagplus.Exceptions;
 using Newtonsoft.Json;
 using RestSharp;
@@ -55,6 +56,25 @@ namespace BlingIntegrationTagplus.Clients.Bling
             {
                 var pedidos = JsonConvert.DeserializeObject<GetPedidosResponse>(response.Content);
                 return pedidos;
+            }
+        }
+
+        public GetSituacaoResponse ExecuteGetSituacao()
+        {
+            var client = new RestClient("https://bling.com.br");
+            var request = new RestRequest("Api/v2/situacao/Vendas/json", DataFormat.Json);
+            request.AddQueryParameter("apikey", ApiKey);
+            var response = client.Get(request);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                var error = JsonConvert.DeserializeObject<PedidosResponseError>(response.Content);
+                throw new BlingException($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
+            }
+            else
+            {
+                var pedido = JsonConvert.DeserializeObject<GetSituacaoResponse>(response.Content);
+                return pedido;
             }
         }
 

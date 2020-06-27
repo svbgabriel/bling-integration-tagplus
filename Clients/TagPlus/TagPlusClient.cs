@@ -230,6 +230,27 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             }
         }
 
+        public IList<GetFormasPagamentoResponse> GetFormasPagamentos()
+        {
+            var client = new RestClient("https://api.tagplus.com.br");
+            var request = new RestRequest("formas_pagamento", DataFormat.Json);
+            request.AddHeader("X-Api-Version", "2.0");
+            request.AddHeader("Authorization", $"Bearer {AccessToken}");
+            request.AddHeader("Accept", "application/json");
+            var response = client.Get(request);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
+                throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
+            }
+            else
+            {
+                var formas = JsonConvert.DeserializeObject<IList<GetFormasPagamentoResponse>>(response.Content);
+                return formas;
+            }
+        }
+
         public int GetFormasPagamento(string descricao)
         {
             var client = new RestClient("https://api.tagplus.com.br");
@@ -258,7 +279,28 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             }
         }
 
-        public int GetTiposContatos(string descricao)
+        public IList<GetTiposContatosResponse> GetTiposContatos()
+        {
+            var client = new RestClient("https://api.tagplus.com.br");
+            var request = new RestRequest("tipos_contatos", DataFormat.Json);
+            request.AddHeader("X-Api-Version", "2.0");
+            request.AddHeader("Authorization", $"Bearer {AccessToken}");
+            request.AddHeader("Accept", "application/json");
+            var response = client.Get(request);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
+                throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
+            }
+            else
+            {
+                var tiposContatos = JsonConvert.DeserializeObject<IList<GetTiposContatosResponse>>(response.Content);
+                return tiposContatos;
+            }
+        }
+
+        public int GetTiposContato(string descricao)
         {
             var client = new RestClient("https://api.tagplus.com.br");
             var request = new RestRequest("tipos_contatos", DataFormat.Json);

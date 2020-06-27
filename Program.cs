@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 namespace BlingIntegrationTagplus
 {
@@ -58,8 +59,23 @@ namespace BlingIntegrationTagplus
                 Environment.Exit(0);
             }
 
-            // Envia os pedidos para o TagPlus
+            // Encontra as situações
+            var situacoes = blingClient.ExecuteGetSituacao();
+            var situacaoImportado = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Importado no TagPlus"));
+            var situacaoEmAberto = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Em aberto"));
+
             TagPlusClient tagPlusClient = new TagPlusClient(code);
+
+            // Encontra os tipos de contato
+            var tiposContato = tagPlusClient.GetTiposContatos();
+            var emailContato = tiposContato.First(contato => contato.Descricao.Equals("Email"));
+            var celularContato = tiposContato.First(contato => contato.Descricao.Equals("Celular"));
+            var telefoneContato = tiposContato.First(contato => contato.Descricao.Equals("Telefone"));
+
+            // Encontra as formas de pagamento
+            var formasPagamento = tagPlusClient.GetFormasPagamentos();
+
+            // Envia os pedidos para o TagPlus
             Console.WriteLine($"Foram encontrados {pedidos.Retorno.Pedidos.Count} pedido(s)");
             foreach (PedidoItem pedido in pedidos.Retorno.Pedidos)
             {
@@ -110,9 +126,8 @@ namespace BlingIntegrationTagplus
                     // Verifica se existe o e-mail
                     if (pedido.Pedido.Cliente.Email != null)
                     {
-                        int id = tagPlusClient.GetTiposContatos("Email");
                         Contato email = new Contato();
-                        email.TipoContato = id;
+                        email.TipoContato = emailContato.Id;
                         email.Descricao = pedido.Pedido.Cliente.Email;
                         email.Principal = true;
                         cliente.Contatos.Add(email);
@@ -120,9 +135,8 @@ namespace BlingIntegrationTagplus
                     // Verifica se existe o celular
                     if (pedido.Pedido.Cliente.Celular != null)
                     {
-                        int id = tagPlusClient.GetTiposContatos("Celular");
                         Contato celular = new Contato();
-                        celular.TipoContato = id;
+                        celular.TipoContato = celularContato.Id;
                         celular.Descricao = pedido.Pedido.Cliente.Celular;
                         celular.Principal = true;
                         cliente.Contatos.Add(celular);
@@ -130,9 +144,8 @@ namespace BlingIntegrationTagplus
                     // Verifica se existe o telefone
                     if (pedido.Pedido.Cliente.Fone != null)
                     {
-                        int id = tagPlusClient.GetTiposContatos("Telefone");
                         Contato fone = new Contato();
-                        fone.Id = id;
+                        fone.Id = telefoneContato.Id;
                         fone.Descricao = pedido.Pedido.Cliente.Fone;
                         fone.Principal = true;
                         cliente.Contatos.Add(fone);
@@ -204,7 +217,7 @@ namespace BlingIntegrationTagplus
                 foreach (ParcelaItem parcelaWrapper in pedido.Pedido.Parcelas)
                 {
                     Clients.Bling.Models.Pedidos.Parcela parcela = parcelaWrapper.Parcela;
-                    int formaPagamento = tagPlusClient.GetFormasPagamento(parcela.FormaPagamento.Descricao);
+                    int formaPagamento = formasPagamento.First(forma => forma.Descricao.Equals(parcela.FormaPagamento.Descricao)).Id;
                     // Converte a data de vencimento
                     string date = DateTime.Parse(parcela.DataVencimento).ToString("yyyy-MM-dd");
                     Clients.TagPlus.Models.Pedidos.Parcela parcelaTagPlus = new Clients.TagPlus.Models.Pedidos.Parcela();
@@ -236,6 +249,8 @@ namespace BlingIntegrationTagplus
                 {
                     Console.WriteLine($"Não foi possível cadastrar o pedido: {e.Message}");
                 }
+
+                // TODO: Atualiza a situação no Bling
 
                 Console.WriteLine("--------------------------------------------");
                 Console.WriteLine();
