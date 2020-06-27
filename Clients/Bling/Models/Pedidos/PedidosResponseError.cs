@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace BlingIntegrationTagplus.Clients.Bling.Models.Pedidos
 {
-    public partial class Erro
+    public class Erro
     {
 
         [JsonProperty("cod")]
@@ -12,21 +12,21 @@ namespace BlingIntegrationTagplus.Clients.Bling.Models.Pedidos
         public string Msg { get; set; }
     }
 
-    public partial class Erros
+    public class Erros
     {
 
         [JsonProperty("erro")]
         public Erro Erro { get; set; }
     }
 
-    public partial class RetornoError
+    public class RetornoError
     {
 
         [JsonProperty("erros")]
         public Erros Erros { get; set; }
     }
 
-    public partial class PedidosResponseError
+    public class PedidosResponseError
     {
 
         [JsonProperty("retorno")]

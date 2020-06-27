@@ -3,7 +3,7 @@ namespace BlingIntegrationTagplus.Clients.Bling.Models.Pedidos
     using Newtonsoft.Json;
     using System.Collections.Generic;
 
-    public partial class Cliente
+    public class Cliente
     {
 
         [JsonProperty("id")]
@@ -52,7 +52,7 @@ namespace BlingIntegrationTagplus.Clients.Bling.Models.Pedidos
         public string Fone { get; set; }
     }
 
-    public partial class Item
+    public class Item
     {
 
         [JsonProperty("codigo")]
@@ -98,21 +98,21 @@ namespace BlingIntegrationTagplus.Clients.Bling.Models.Pedidos
         public string Gtin { get; set; }
     }
 
-    public partial class Iten
+    public class Iten
     {
 
         [JsonProperty("item")]
         public Item Item { get; set; }
     }
 
-    public partial class Pagamento
+    public class Pagamento
     {
 
         [JsonProperty("categoria")]
         public string Categoria { get; set; }
     }
 
-    public partial class FormaPagamento
+    public class FormaPagamento
     {
 
         [JsonProperty("id")]
@@ -125,7 +125,7 @@ namespace BlingIntegrationTagplus.Clients.Bling.Models.Pedidos
         public int CodigoFiscal { get; set; }
     }
 
-    public partial class Parcela
+    public class Parcela
     {
 
         [JsonProperty("idLancamento")]
@@ -147,14 +147,14 @@ namespace BlingIntegrationTagplus.Clients.Bling.Models.Pedidos
         public FormaPagamento FormaPagamento { get; set; }
     }
 
-    public partial class ParcelaItem
+    public class ParcelaItem
     {
 
         [JsonProperty("parcela")]
         public Parcela Parcela { get; set; }
     }
 
-    public partial class EnderecoEntrega
+    public class EnderecoEntrega
     {
 
         [JsonProperty("nome")]
@@ -182,7 +182,7 @@ namespace BlingIntegrationTagplus.Clients.Bling.Models.Pedidos
         public string Uf { get; set; }
     }
 
-    public partial class Transporte
+    public class Transporte
     {
 
         [JsonProperty("transportadora")]
@@ -201,7 +201,7 @@ namespace BlingIntegrationTagplus.Clients.Bling.Models.Pedidos
         public EnderecoEntrega EnderecoEntrega { get; set; }
     }
 
-    public partial class Pedido
+    public class Pedido
     {
 
         [JsonProperty("desconto")]
@@ -268,21 +268,21 @@ namespace BlingIntegrationTagplus.Clients.Bling.Models.Pedidos
         public Transporte Transporte { get; set; }
     }
 
-    public partial class PedidoItem
+    public class PedidoItem
     {
 
         [JsonProperty("pedido")]
         public Pedido Pedido { get; set; }
     }
 
-    public partial class Retorno
+    public class Retorno
     {
 
         [JsonProperty("pedidos")]
         public IList<PedidoItem> Pedidos { get; set; }
     }
 
-    public partial class GetPedidosResponse
+    public class GetPedidosResponse
     {
 
         [JsonProperty("retorno")]

@@ -80,11 +80,12 @@ namespace BlingIntegrationTagplus.Clients.Bling
 
         public PutPedidosResponse ExecuteUpdateOrder(string numero, string situacao)
         {
-            string xml = $"<?xml version=\"1.0\" encoding=\"UTF - 8\"?><pedido><idSituacao>{situacao}</idSituacao></pedido>";
+            string xmlTemplate = $"<?xml version=\"1.0\" encoding=\"UTF-8\"?><pedido><idSituacao>{situacao}</idSituacao></pedido>";
             var client = new RestClient("https://bling.com.br");
-            var request = new RestRequest($"Api/v2/pedidos/{numero}/json");
-            request.AddQueryParameter("apikey", ApiKey);
-            request.AddQueryParameter("xml", xml);
+            var request = new RestRequest($"Api/v2/pedido/{numero}/json");
+            request.AddHeader("Content-Type", "x-www-form-urlencoded");
+            request.AddParameter("apikey", ApiKey);
+            request.AddParameter("xml", xmlTemplate);
             var response = client.Put(request);
 
             if (response.StatusCode != HttpStatusCode.OK)
