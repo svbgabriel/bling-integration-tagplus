@@ -126,28 +126,34 @@ namespace BlingIntegrationTagplus
                     // Verifica se existe o e-mail
                     if (pedido.Pedido.Cliente.Email != null)
                     {
-                        Contato email = new Contato();
-                        email.TipoContato = emailContato.Id;
-                        email.Descricao = pedido.Pedido.Cliente.Email;
-                        email.Principal = true;
+                        Contato email = new Contato
+                        {
+                            TipoContato = emailContato.Id,
+                            Descricao = pedido.Pedido.Cliente.Email,
+                            Principal = true
+                        };
                         cliente.Contatos.Add(email);
                     }
                     // Verifica se existe o celular
                     if (pedido.Pedido.Cliente.Celular != null)
                     {
-                        Contato celular = new Contato();
-                        celular.TipoContato = celularContato.Id;
-                        celular.Descricao = pedido.Pedido.Cliente.Celular;
-                        celular.Principal = true;
+                        Contato celular = new Contato
+                        {
+                            TipoContato = celularContato.Id,
+                            Descricao = pedido.Pedido.Cliente.Celular,
+                            Principal = true
+                        };
                         cliente.Contatos.Add(celular);
                     }
                     // Verifica se existe o telefone
                     if (pedido.Pedido.Cliente.Fone != null)
                     {
-                        Contato fone = new Contato();
-                        fone.Id = telefoneContato.Id;
-                        fone.Descricao = pedido.Pedido.Cliente.Fone;
-                        fone.Principal = true;
+                        Contato fone = new Contato
+                        {
+                            Id = telefoneContato.Id,
+                            Descricao = pedido.Pedido.Cliente.Fone,
+                            Principal = true
+                        };
                         cliente.Contatos.Add(fone);
                     }
 
@@ -161,26 +167,30 @@ namespace BlingIntegrationTagplus
                     if (pedido.Pedido.Transporte != null)
                     {
                         cliente.Enderecos = new List<Endereco>();
-                        Endereco endereco = new Endereco();
-                        endereco.Logradouro = pedido.Pedido.Transporte.EnderecoEntrega.Endereco;
-                        endereco.Numero = pedido.Pedido.Transporte.EnderecoEntrega.Numero;
-                        endereco.Bairro = pedido.Pedido.Transporte.EnderecoEntrega.Bairro;
-                        endereco.Complemento = pedido.Pedido.Transporte.EnderecoEntrega.Complemento;
-                        endereco.Cep = pedido.Pedido.Transporte.EnderecoEntrega.Cep.Replace(".", "");
-                        endereco.Principal = true;
+                        Endereco endereco = new Endereco
+                        {
+                            Logradouro = pedido.Pedido.Transporte.EnderecoEntrega.Endereco,
+                            Numero = pedido.Pedido.Transporte.EnderecoEntrega.Numero,
+                            Bairro = pedido.Pedido.Transporte.EnderecoEntrega.Bairro,
+                            Complemento = pedido.Pedido.Transporte.EnderecoEntrega.Complemento,
+                            Cep = pedido.Pedido.Transporte.EnderecoEntrega.Cep.Replace(".", ""),
+                            Principal = true
+                        };
                         cliente.Enderecos.Add(endereco);
                     }
                     else if (pedido.Pedido.Cliente.Endereco != null && pedido.Pedido.Cliente.Numero != null
                         && pedido.Pedido.Cliente.Cep != null && pedido.Pedido.Cliente.Bairro != null)
                     {
                         cliente.Enderecos = new List<Endereco>();
-                        Endereco endereco = new Endereco();
-                        endereco.Logradouro = pedido.Pedido.Cliente.Endereco;
-                        endereco.Numero = pedido.Pedido.Cliente.Numero;
-                        endereco.Bairro = pedido.Pedido.Cliente.Bairro;
-                        endereco.Complemento = pedido.Pedido.Cliente.Complemento;
-                        endereco.Cep = pedido.Pedido.Cliente.Cep.Replace(".", "");
-                        endereco.Principal = true;
+                        Endereco endereco = new Endereco
+                        {
+                            Logradouro = pedido.Pedido.Cliente.Endereco,
+                            Numero = pedido.Pedido.Cliente.Numero,
+                            Bairro = pedido.Pedido.Cliente.Bairro,
+                            Complemento = pedido.Pedido.Cliente.Complemento,
+                            Cep = pedido.Pedido.Cliente.Cep.Replace(".", ""),
+                            Principal = true
+                        };
                         cliente.Enderecos.Add(endereco);
                     }
 
@@ -201,43 +211,51 @@ namespace BlingIntegrationTagplus
                 {
                     Clients.Bling.Models.Pedidos.Item blingItem = pedido.Pedido.Itens[i].Item;
                     int produtoServico = tagPlusClient.GetProduto(blingItem.Codigo);
-                    Clients.TagPlus.Models.Pedidos.Item tagPlusItem = new Clients.TagPlus.Models.Pedidos.Item();
-                    tagPlusItem.NumItem = i;
-                    tagPlusItem.ProdutoServico = produtoServico;
-                    tagPlusItem.Qtd = Convert.ToInt32(float.Parse(blingItem.Quantidade, CultureInfo.InvariantCulture.NumberFormat));
-                    tagPlusItem.ValorUnitario = float.Parse(blingItem.Valorunidade, CultureInfo.InvariantCulture.NumberFormat);
-                    tagPlusItem.ValorDesconto = float.Parse(blingItem.DescontoItem, CultureInfo.InvariantCulture.NumberFormat);
+                    Clients.TagPlus.Models.Pedidos.Item tagPlusItem = new Clients.TagPlus.Models.Pedidos.Item
+                    {
+                        NumItem = i,
+                        ProdutoServico = produtoServico,
+                        Qtd = Convert.ToInt32(float.Parse(blingItem.Quantidade, CultureInfo.InvariantCulture.NumberFormat)),
+                        ValorUnitario = float.Parse(blingItem.Valorunidade, CultureInfo.InvariantCulture.NumberFormat),
+                        ValorDesconto = float.Parse(blingItem.DescontoItem, CultureInfo.InvariantCulture.NumberFormat)
+                    };
                     itens.Add(tagPlusItem);
                 }
 
                 // Recupera as faturas
                 IList<Fatura> faturas = new List<Fatura>();
-                Fatura fatura = new Fatura();
-                fatura.Parcelas = new List<Clients.TagPlus.Models.Pedidos.Parcela>();
+                Fatura fatura = new Fatura
+                {
+                    Parcelas = new List<Clients.TagPlus.Models.Pedidos.Parcela>()
+                };
                 foreach (ParcelaItem parcelaWrapper in pedido.Pedido.Parcelas)
                 {
                     Clients.Bling.Models.Pedidos.Parcela parcela = parcelaWrapper.Parcela;
                     int formaPagamento = formasPagamento.First(forma => forma.Descricao.Equals(parcela.FormaPagamento.Descricao)).Id;
                     // Converte a data de vencimento
                     string date = DateTime.Parse(parcela.DataVencimento).ToString("yyyy-MM-dd");
-                    Clients.TagPlus.Models.Pedidos.Parcela parcelaTagPlus = new Clients.TagPlus.Models.Pedidos.Parcela();
-                    parcelaTagPlus.ValorParcela = float.Parse(parcela.Valor, CultureInfo.InvariantCulture.NumberFormat);
-                    parcelaTagPlus.DataVencimento = date;
+                    Clients.TagPlus.Models.Pedidos.Parcela parcelaTagPlus = new Clients.TagPlus.Models.Pedidos.Parcela
+                    {
+                        ValorParcela = float.Parse(parcela.Valor, CultureInfo.InvariantCulture.NumberFormat),
+                        DataVencimento = date
+                    };
                     fatura.Parcelas.Add(parcelaTagPlus);
                     fatura.FormaPagamento = formaPagamento;
                 }
                 faturas.Add(fatura);
 
                 // Cria o corpo do pedido
-                PedidoBody body = new PedidoBody();
-                body.CodigoExterno = pedido.Pedido.Numero;
-                body.Cliente = clienteId;
-                body.Itens = itens;
-                body.Faturas = faturas;
-                body.ValorFrete = float.Parse(pedido.Pedido.Valorfrete, CultureInfo.InvariantCulture.NumberFormat);
-                body.Observacoes = $"Pedido: {pedido.Pedido.Numero}\n" +
+                PedidoBody body = new PedidoBody
+                {
+                    CodigoExterno = pedido.Pedido.Numero,
+                    Cliente = clienteId,
+                    Itens = itens,
+                    Faturas = faturas,
+                    ValorFrete = float.Parse(pedido.Pedido.Valorfrete, CultureInfo.InvariantCulture.NumberFormat),
+                    Observacoes = $"Pedido: {pedido.Pedido.Numero}\n" +
                     $"Observações: {pedido.Pedido.Observacoes.Trim()}\nObservações internas: {pedido.Pedido.Observacaointerna}\n" +
-                    $"Número Pedido Loja: {pedido.Pedido.NumeroPedidoLoja}\nTipo da Integração: {pedido.Pedido.TipoIntegracao}";
+                    $"Número Pedido Loja: {pedido.Pedido.NumeroPedidoLoja}\nTipo da Integração: {pedido.Pedido.TipoIntegracao}"
+                };
 
                 // Envia o novo pedido
                 try
