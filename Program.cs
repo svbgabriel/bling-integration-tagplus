@@ -50,7 +50,7 @@ namespace BlingIntegrationTagplus
             Console.WriteLine();
             Console.WriteLine("Procurando pedidos no Bling...");
 
-            Clients.Bling.Models.Pedidos.GetPedidosResponse pedidos = null;
+            List<PedidoItem> pedidos = null;
             try
             {
                 pedidos = blingClient.ExecuteGetOrder(situacaoEmAberto.Situacao.Id);
@@ -62,7 +62,7 @@ namespace BlingIntegrationTagplus
             }
 
             // Verifica se existem pedidos
-            if (pedidos.Retorno.Pedidos == null || pedidos.Retorno.Pedidos.Count == 0)
+            if (pedidos == null || pedidos.Count == 0)
             {
                 Console.WriteLine("Não foram encontrados pedidos no Bling");
                 Environment.Exit(0);
@@ -80,8 +80,8 @@ namespace BlingIntegrationTagplus
             var formasPagamento = tagPlusClient.GetFormasPagamentos();
 
             // Envia os pedidos para o TagPlus
-            Console.WriteLine($"Foram encontrados {pedidos.Retorno.Pedidos.Count} pedido(s)");
-            foreach (PedidoItem pedido in pedidos.Retorno.Pedidos)
+            Console.WriteLine($"Foram encontrados {pedidos.Count} pedido(s)");
+            foreach (PedidoItem pedido in pedidos)
             {
                 Console.WriteLine();
                 Console.WriteLine("--------------------------------------------");

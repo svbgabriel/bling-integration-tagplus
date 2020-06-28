@@ -4,6 +4,7 @@ using BlingIntegrationTagplus.Exceptions;
 using Newtonsoft.Json;
 using RestSharp;
 using System;
+using System.Collections.Generic;
 using System.Net;
 
 namespace BlingIntegrationTagplus.Clients.Bling
@@ -11,6 +12,7 @@ namespace BlingIntegrationTagplus.Clients.Bling
     class BlingClient
     {
         private string ApiKey { get; set; }
+        private readonly int API_LIMIT = 100;
 
         public BlingClient(string apiKey)
         {
@@ -59,24 +61,44 @@ namespace BlingIntegrationTagplus.Clients.Bling
             }
         }
 
-        public GetPedidosResponse ExecuteGetOrder(string situacaoId)
+        public List<PedidoItem> ExecuteGetOrder(string situacaoId)
         {
+            int page = 1;
+            bool hasNext = true;
+            List<PedidoItem> pedidosResult = new List<PedidoItem>();
             var client = new RestClient("https://bling.com.br");
-            var request = new RestRequest("Api/v2/pedidos/json", DataFormat.Json);
-            request.AddQueryParameter("apikey", ApiKey);
-            request.AddQueryParameter("filters", $"idSituacao[{situacaoId}]");
-            var response = client.Get(request);
+            while (hasNext)
+            {
+                var request = new RestRequest($"Api/v2/pedidos/page={page}/json", DataFormat.Json);
+                request.AddQueryParameter("apikey", ApiKey);
+                request.AddQueryParameter("filters", $"idSituacao[{situacaoId}]");
+                var response = client.Get(request);
 
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                var error = JsonConvert.DeserializeObject<PedidosResponseError>(response.Content);
-                throw new BlingException($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    var error = JsonConvert.DeserializeObject<PedidosResponseError>(response.Content);
+                    throw new BlingException($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
+                }
+                else
+                {
+                    if (!response.Content.Contains("A informacao desejada nao foi encontrada"))
+                    {
+                        var pedidos = JsonConvert.DeserializeObject<GetPedidosResponse>(response.Content);
+                        pedidosResult.AddRange(pedidos.Retorno.Pedidos);
+                        page++;
+                        if (pedidos.Retorno.Pedidos.Count < API_LIMIT)
+                        {
+                            hasNext = false;
+                        }
+                    }
+                    else
+                    {
+                        hasNext = false;
+                    }
+                }
             }
-            else
-            {
-                var pedidos = JsonConvert.DeserializeObject<GetPedidosResponse>(response.Content);
-                return pedidos;
-            }
+
+            return pedidosResult;
         }
 
         public GetSituacaoResponse ExecuteGetSituacao()
