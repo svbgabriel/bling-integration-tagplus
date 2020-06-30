@@ -213,6 +213,9 @@ namespace BlingIntegrationTagplus
                     catch (TagPlusException e)
                     {
                         Console.WriteLine($"Não foi possível cadastrar o cliente: {e.Message}");
+                        Console.WriteLine("--------------------------------------------");
+                        Console.WriteLine();
+                        continue;
                     }
                 }
 
