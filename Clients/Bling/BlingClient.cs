@@ -3,7 +3,6 @@ using BlingIntegrationTagplus.Clients.Bling.Models.Situacao;
 using BlingIntegrationTagplus.Exceptions;
 using Newtonsoft.Json;
 using RestSharp;
-using System;
 using System.Collections.Generic;
 using System.Net;
 
@@ -19,49 +18,7 @@ namespace BlingIntegrationTagplus.Clients.Bling
             ApiKey = apiKey;
         }
 
-        public GetPedidosResponse ExecuteGetOrder()
-        {
-            var client = new RestClient("https://bling.com.br");
-            var request = new RestRequest("Api/v2/pedidos/json", DataFormat.Json);
-            request.AddQueryParameter("apikey", ApiKey);
-            var response = client.Get(request);
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                var error = JsonConvert.DeserializeObject<PedidosResponseError>(response.Content);
-                throw new BlingException($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
-            }
-            else
-            {
-                var pedidos = JsonConvert.DeserializeObject<GetPedidosResponse>(response.Content);
-                return pedidos;
-            }
-        }
-
-        public GetPedidosResponse ExecuteGetOrder(DateTime dateStart, DateTime dateEnd)
-        {
-            // Formata a data
-            string dateStartString = dateStart.ToString("dd/MM/yyyy");
-            string dateEndString = dateEnd.ToString("dd/MM/yyyy");
-            var client = new RestClient("https://bling.com.br");
-            var request = new RestRequest("Api/v2/pedidos/json", DataFormat.Json);
-            request.AddQueryParameter("apikey", ApiKey);
-            request.AddQueryParameter("filters", $"dataEmissao[{dateStartString} TO {dateEndString}]");
-            var response = client.Get(request);
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                var error = JsonConvert.DeserializeObject<PedidosResponseError>(response.Content);
-                throw new BlingException($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
-            }
-            else
-            {
-                var pedidos = JsonConvert.DeserializeObject<GetPedidosResponse>(response.Content);
-                return pedidos;
-            }
-        }
-
-        public List<PedidoItem> ExecuteGetOrder(string situacaoId)
+        public List<PedidoItem> ExecuteGetOrder()
         {
             int page = 1;
             bool hasNext = true;
@@ -71,7 +28,46 @@ namespace BlingIntegrationTagplus.Clients.Bling
             {
                 var request = new RestRequest($"Api/v2/pedidos/page={page}/json", DataFormat.Json);
                 request.AddQueryParameter("apikey", ApiKey);
-                request.AddQueryParameter("filters", $"idSituacao[{situacaoId}]");
+                var response = client.Get(request);
+
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    var error = JsonConvert.DeserializeObject<PedidosResponseError>(response.Content);
+                    throw new BlingException($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
+                }
+                else
+                {
+                    if (!response.Content.Contains("A informacao desejada nao foi encontrada"))
+                    {
+                        var pedidos = JsonConvert.DeserializeObject<GetPedidosResponse>(response.Content);
+                        pedidosResult.AddRange(pedidos.Retorno.Pedidos);
+                        page++;
+                        if (pedidos.Retorno.Pedidos.Count < API_LIMIT)
+                        {
+                            hasNext = false;
+                        }
+                    }
+                    else
+                    {
+                        hasNext = false;
+                    }
+                }
+            }
+
+            return pedidosResult;
+        }
+
+        public List<PedidoItem> ExecuteGetOrder(string filters)
+        {
+            int page = 1;
+            bool hasNext = true;
+            List<PedidoItem> pedidosResult = new List<PedidoItem>();
+            var client = new RestClient("https://bling.com.br");
+            while (hasNext)
+            {
+                var request = new RestRequest($"Api/v2/pedidos/page={page}/json", DataFormat.Json);
+                request.AddQueryParameter("apikey", ApiKey);
+                request.AddQueryParameter("filters", filters);
                 var response = client.Get(request);
 
                 if (response.StatusCode != HttpStatusCode.OK)

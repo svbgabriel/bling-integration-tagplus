@@ -1,4 +1,5 @@
 using BlingIntegrationTagplus.Clients.Bling;
+using BlingIntegrationTagplus.Clients.Bling.Filters;
 using BlingIntegrationTagplus.Clients.Bling.Models.Pedidos;
 using BlingIntegrationTagplus.Clients.TagPlus;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.Clientes;
@@ -30,6 +31,8 @@ namespace BlingIntegrationTagplus
             var envReader = new EnvReader();
             // Carrega a API KEY do Bling
             var blingApiKey = envReader.GetStringValue("BLING_API_KEY");
+            // Carrega a data inicial do Bling
+            var blingInitialDate = envReader.GetStringValue("BLING_INITIAL_DATE");
 
             // Inicializa o banco de dados local
             using var db = new IntegrationContext();
@@ -53,7 +56,11 @@ namespace BlingIntegrationTagplus
             List<PedidoItem> pedidos = null;
             try
             {
-                pedidos = blingClient.ExecuteGetOrder(situacaoEmAberto.Situacao.Id);
+                BuildOrdersFilter filters = new BuildOrdersFilter();
+                string filter = filters.AddDateFilter(DateTime.Parse(blingInitialDate), DateTime.Now)
+                    .AddSituation(situacaoEmAberto.Situacao.Id)
+                    .Build();
+                pedidos = blingClient.ExecuteGetOrder(filter);
             }
             catch (BlingException e)
             {
