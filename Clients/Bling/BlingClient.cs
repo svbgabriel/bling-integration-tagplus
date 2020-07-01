@@ -3,6 +3,7 @@ using BlingIntegrationTagplus.Clients.Bling.Models.Situacao;
 using BlingIntegrationTagplus.Exceptions;
 using Newtonsoft.Json;
 using RestSharp;
+using Serilog;
 using System.Collections.Generic;
 using System.Net;
 
@@ -33,6 +34,8 @@ namespace BlingIntegrationTagplus.Clients.Bling
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
                     var error = JsonConvert.DeserializeObject<PedidosResponseError>(response.Content);
+                    Log.Error("Bling - ExecuteGetOrder() - Erro durante a recuperação dos pedidos");
+                    Log.Error($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
                     throw new BlingException($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
                 }
                 else
@@ -73,6 +76,9 @@ namespace BlingIntegrationTagplus.Clients.Bling
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
                     var error = JsonConvert.DeserializeObject<PedidosResponseError>(response.Content);
+                    Log.Error("Bling - ExecuteGetOrder(string filters) - Erro durante a recuperação dos pedidos");
+                    Log.Error($"Filtros: {filters}");
+                    Log.Error($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
                     throw new BlingException($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
                 }
                 else
@@ -107,6 +113,8 @@ namespace BlingIntegrationTagplus.Clients.Bling
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 var error = JsonConvert.DeserializeObject<PedidosResponseError>(response.Content);
+                Log.Error("Bling - ExecuteGetSituacao() - Erro durante a recuperação das situações");
+                Log.Error($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
                 throw new BlingException($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
             }
             else
@@ -129,6 +137,9 @@ namespace BlingIntegrationTagplus.Clients.Bling
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 var error = JsonConvert.DeserializeObject<PedidosResponseError>(response.Content);
+                Log.Error("Bling - ExecuteUpdateOrder(string numero, string situacao) - Erro durante a atualização do pedido");
+                Log.Error($"numero: {numero}, situacao: {situacao}");
+                Log.Error($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
                 throw new BlingException($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
             }
             else

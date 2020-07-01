@@ -10,9 +10,11 @@ using BlingIntegrationTagplus.Utils;
 using dotenv.net;
 using dotenv.net.Utilities;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 
 namespace BlingIntegrationTagplus
@@ -33,6 +35,14 @@ namespace BlingIntegrationTagplus
             var blingApiKey = envReader.GetStringValue("BLING_API_KEY");
             // Carrega a data inicial do Bling
             var blingInitialDate = envReader.GetStringValue("BLING_INITIAL_DATE");
+
+            // Inicializa o logger
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.File($"logs{Path.AltDirectorySeparatorChar}integration-{DateTime.Now:yyyyMMddHHmmss}.log")
+                .CreateLogger();
+
+            Log.Information("Iniciando o processo");
 
             // Inicializa o banco de dados local
             using var db = new IntegrationContext();
@@ -298,6 +308,8 @@ namespace BlingIntegrationTagplus
                 Console.WriteLine();
             }
 
+            Log.Information("Processo finalizado");
+            Log.CloseAndFlush();
             Console.WriteLine("Processo finalizado");
         }
     }

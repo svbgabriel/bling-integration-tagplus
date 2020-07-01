@@ -437,3 +437,6 @@ $RECYCLE.BIN/
 
 # Database files
 *.db
+
+# Log folder
+logs/

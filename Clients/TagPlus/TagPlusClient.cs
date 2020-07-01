@@ -9,6 +9,7 @@ using BlingIntegrationTagplus.Exceptions;
 using Newtonsoft.Json;
 using RestSharp;
 using RestSharp.Serializers.NewtonsoftJson;
+using Serilog;
 using System.Collections.Generic;
 using System.Net;
 
@@ -37,6 +38,8 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             if (response.StatusCode != HttpStatusCode.Created)
             {
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
+                Log.Error("TagPlus - PostPedidos(PedidoBody body) - Erro durante a criação do pedido");
+                Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
             else
@@ -58,6 +61,8 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
+                Log.Error("TagPlus - GetDepartamentos() - Erro durante a recuperação de departamentos");
+                Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
             else
@@ -80,6 +85,9 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
+                Log.Error("TagPlus - GetDepartamentos() - Erro durante a recuperação de departamentos");
+                Log.Error($"nomeDepartamento: {nomeDepartamento}");
+                Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
             else
@@ -108,6 +116,9 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
+                Log.Error("TagPlus - GetClienteByRazaoSocial(string nome) - Erro durante a recuperação do cliente");
+                Log.Error($"nome: {nome}");
+                Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
             else
@@ -136,6 +147,9 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
+                Log.Error("TagPlus - GetClienteByRazaoSocial(string cpf) - Erro durante a recuperação do cliente");
+                Log.Error($"cpf: {cpf}");
+                Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
             else
@@ -164,6 +178,9 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
+                Log.Error("TagPlus - GetClienteByRazaoSocial(string cnpj) - Erro durante a recuperação do cliente");
+                Log.Error($"cnpj: {cnpj}");
+                Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
             else
@@ -193,6 +210,8 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             if (response.StatusCode != HttpStatusCode.Created)
             {
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
+                Log.Error("TagPlus - PostCliente(ClienteBody clienteBody) - Erro durante a criação do cliente");
+                Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
             else
@@ -215,6 +234,9 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
+                Log.Error("TagPlus - GetProduto(string codigo) - Erro durante a recuperação do produto");
+                Log.Error($"codigo: {codigo}");
+                Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
             else
@@ -242,6 +264,8 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
+                Log.Error("TagPlus - GetFormasPagamentos() - Erro durante a recuperação das formas de pagamento");
+                Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
             else
@@ -264,6 +288,9 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
+                Log.Error("TagPlus - GetFormasPagamento(string descricao) - Erro durante a recuperação das formas de pagamento");
+                Log.Error($"descricao: {descricao}");
+                Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
             else
@@ -291,6 +318,8 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
+                Log.Error("TagPlus - GetTiposContatos() - Erro durante a recuperação das tipos de contato");
+                Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
             else
@@ -313,6 +342,9 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
+                Log.Error("TagPlus - GetTiposContato(string descricao) - Erro durante a recuperação das tipos de contato");
+                Log.Error($"descricao: {descricao}");
+                Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
             else
