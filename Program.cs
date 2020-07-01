@@ -105,7 +105,7 @@ namespace BlingIntegrationTagplus
                 Console.WriteLine($"Tratando o Pedido {pedido.Pedido.Numero}");
                 // Tenta recupera o Cliente de várias maneiras
                 int clienteId = 0;
-                if (pedido.Pedido.Cliente.Cnpj != null)
+                if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Cnpj))
                 {
                     if (ValidateUtils.IsCpf(pedido.Pedido.Cliente.Cnpj))
                     {
@@ -145,7 +145,7 @@ namespace BlingIntegrationTagplus
                     // Preenche as informações de contato
                     cliente.Contatos = new List<Contato>();
                     // Verifica se existe o e-mail
-                    if (pedido.Pedido.Cliente.Email != null)
+                    if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Email))
                     {
                         Contato email = new Contato
                         {
@@ -156,7 +156,7 @@ namespace BlingIntegrationTagplus
                         cliente.Contatos.Add(email);
                     }
                     // Verifica se existe o celular
-                    if (pedido.Pedido.Cliente.Celular != null)
+                    if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Celular))
                     {
                         Contato celular = new Contato
                         {
@@ -167,7 +167,7 @@ namespace BlingIntegrationTagplus
                         cliente.Contatos.Add(celular);
                     }
                     // Verifica se existe o telefone
-                    if (pedido.Pedido.Cliente.Fone != null)
+                    if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Fone))
                     {
                         Contato fone = new Contato
                         {
