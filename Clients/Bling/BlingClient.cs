@@ -139,6 +139,7 @@ namespace BlingIntegrationTagplus.Clients.Bling
                 var error = JsonConvert.DeserializeObject<PedidosResponseError>(response.Content);
                 Log.Error("Bling - ExecuteUpdateOrder(string numero, string situacao) - Erro durante a atualização do pedido");
                 Log.Error($"numero: {numero}, situacao: {situacao}");
+                Log.Error($"xml: {xmlTemplate}");
                 Log.Error($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
                 throw new BlingException($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
             }
