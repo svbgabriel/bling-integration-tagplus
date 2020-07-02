@@ -1,9 +1,12 @@
 using BlingIntegrationTagplus.Clients.Bling;
 using BlingIntegrationTagplus.Clients.Bling.Filters;
 using BlingIntegrationTagplus.Clients.Bling.Models.Pedidos;
+using BlingIntegrationTagplus.Clients.Bling.Models.Situacao;
 using BlingIntegrationTagplus.Clients.TagPlus;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.Clientes;
+using BlingIntegrationTagplus.Clients.TagPlus.Models.FormasPagamento;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos;
+using BlingIntegrationTagplus.Clients.TagPlus.Models.TiposContatos;
 using BlingIntegrationTagplus.Databases;
 using BlingIntegrationTagplus.Exceptions;
 using BlingIntegrationTagplus.Utils;
@@ -28,13 +31,27 @@ namespace BlingIntegrationTagplus
             Console.WriteLine("## Bem vindo a integração Bling - Tagplus ##");
             Console.WriteLine("############################################");
 
+            Console.WriteLine();
+            Console.WriteLine("Preparando...");
+
             // Carrega o arquivo de configuração
-            DotEnv.Config();
-            var envReader = new EnvReader();
-            // Carrega a API KEY do Bling
-            var blingApiKey = envReader.GetStringValue("BLING_API_KEY");
-            // Carrega a data inicial do Bling
-            var blingInitialDate = envReader.GetStringValue("BLING_INITIAL_DATE");
+            string blingApiKey = "";
+            string blingInitialDate = "";
+            try
+            {
+                DotEnv.Config();
+                var envReader = new EnvReader();
+                // Carrega a API KEY do Bling
+                blingApiKey = envReader.GetStringValue("BLING_API_KEY");
+                // Carrega a data inicial do Bling
+                blingInitialDate = envReader.GetStringValue("BLING_INITIAL_DATE");
+            }
+            catch (FileNotFoundException e)
+            {
+                Console.WriteLine($"O arquivo .env não foi encontrado: {e.Message}");
+                Console.WriteLine("Encerrando...");
+                Environment.Exit(-1);
+            }
 
             // Inicializa o logger
             Log.Logger = new LoggerConfiguration()
@@ -55,9 +72,50 @@ namespace BlingIntegrationTagplus
             var blingClient = new BlingClient(blingApiKey);
 
             // Encontra as situações
-            var situacoes = blingClient.ExecuteGetSituacao();
-            var situacaoImportado = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Importado no TagPlus"));
-            var situacaoEmAberto = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Em aberto"));
+            GetSituacaoResponse situacoes = null;
+            try
+            {
+                situacoes = blingClient.ExecuteGetSituacao();
+            }
+            catch (BlingException e)
+            {
+                Console.WriteLine($"Não foi possível recuperar as situações: {e.Message}");
+                Console.WriteLine("Encerrando...");
+                Environment.Exit(-1);
+            }
+            var situacaoImportado = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Importado no TagPlus")).Situacao.Id;
+            var situacaoEmAberto = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Em aberto")).Situacao.Id;
+
+            TagPlusClient tagPlusClient = new TagPlusClient(code);
+
+            // Encontra os tipos de contato
+            IList<GetTiposContatosResponse> tiposContato = null;
+            try
+            {
+                tiposContato = tagPlusClient.GetTiposContatos();
+            }
+            catch (TagPlusException e)
+            {
+                Console.WriteLine($"Não foi possível recuperar os tipos de contato: {e.Message}");
+                Console.WriteLine("Encerrando...");
+                Environment.Exit(-1);
+            }
+            var emailContato = tiposContato.First(contato => contato.Descricao.Equals("Email")).Id;
+            var celularContato = tiposContato.First(contato => contato.Descricao.Equals("Celular")).Id;
+            var telefoneContato = tiposContato.First(contato => contato.Descricao.Equals("Telefone")).Id;
+
+            // Encontra as formas de pagamento
+            IList<GetFormasPagamentoResponse> formasPagamento = null;
+            try
+            {
+                formasPagamento = tagPlusClient.GetFormasPagamentos();
+            }
+            catch (TagPlusException e)
+            {
+                Console.WriteLine($"Não foi possível recuperar as formas de pagamento: {e.Message}");
+                Console.WriteLine("Encerrando...");
+                Environment.Exit(-1);
+            }
 
             // Recupera os pedidos do Bling
             Console.WriteLine();
@@ -68,7 +126,7 @@ namespace BlingIntegrationTagplus
             {
                 BuildOrdersFilter filters = new BuildOrdersFilter();
                 string filter = filters.AddDateFilter(DateTime.Parse(blingInitialDate), DateTime.Now)
-                    .AddSituation(situacaoEmAberto.Situacao.Id)
+                    .AddSituation(situacaoEmAberto)
                     .Build();
                 pedidos = blingClient.ExecuteGetOrder(filter);
             }
@@ -84,17 +142,6 @@ namespace BlingIntegrationTagplus
                 Console.WriteLine("Não foram encontrados pedidos no Bling");
                 Environment.Exit(0);
             }
-
-            TagPlusClient tagPlusClient = new TagPlusClient(code);
-
-            // Encontra os tipos de contato
-            var tiposContato = tagPlusClient.GetTiposContatos();
-            var emailContato = tiposContato.First(contato => contato.Descricao.Equals("Email"));
-            var celularContato = tiposContato.First(contato => contato.Descricao.Equals("Celular"));
-            var telefoneContato = tiposContato.First(contato => contato.Descricao.Equals("Telefone"));
-
-            // Encontra as formas de pagamento
-            var formasPagamento = tagPlusClient.GetFormasPagamentos();
 
             // Envia os pedidos para o TagPlus
             Console.WriteLine($"Foram encontrados {pedidos.Count} pedido(s)");
@@ -143,45 +190,45 @@ namespace BlingIntegrationTagplus
                     }
 
                     // Preenche as informações de contato
-                    cliente.Contatos = new List<Contato>();
+                    List<Contato> contatos = new List<Contato>();
+                    // Verifica se existe o telefone
+                    if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Fone))
+                    {
+                        Contato fone = new Contato
+                        {
+                            TipoContato = telefoneContato,
+                            Descricao = pedido.Pedido.Cliente.Fone,
+                            Principal = true
+                        };
+                        contatos.Add(fone);
+                    }
                     // Verifica se existe o e-mail
                     if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Email))
                     {
                         Contato email = new Contato
                         {
-                            TipoContato = emailContato.Id,
+                            TipoContato = emailContato,
                             Descricao = pedido.Pedido.Cliente.Email,
                             Principal = true
                         };
-                        cliente.Contatos.Add(email);
+                        contatos.Add(email);
                     }
                     // Verifica se existe o celular
                     if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Celular))
                     {
                         Contato celular = new Contato
                         {
-                            TipoContato = celularContato.Id,
+                            TipoContato = celularContato,
                             Descricao = pedido.Pedido.Cliente.Celular,
                             Principal = true
                         };
-                        cliente.Contatos.Add(celular);
-                    }
-                    // Verifica se existe o telefone
-                    if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Fone))
-                    {
-                        Contato fone = new Contato
-                        {
-                            Id = telefoneContato.Id,
-                            Descricao = pedido.Pedido.Cliente.Fone,
-                            Principal = true
-                        };
-                        cliente.Contatos.Add(fone);
+                        contatos.Add(celular);
                     }
 
                     // Caso não seja encontrado nenhum contrato, remove do cadastro
-                    if (cliente.Contatos.Count == 0)
+                    if (contatos.Count > 0)
                     {
-                        cliente.Contatos = null;
+                        cliente.Contatos = contatos;
                     }
 
                     // Preenche o endereço, se estiver disponível
@@ -296,7 +343,7 @@ namespace BlingIntegrationTagplus
                 Console.WriteLine("Atualizando a situação no Bling");
                 try
                 {
-                    var pedidoUpdated = blingClient.ExecuteUpdateOrder(pedido.Pedido.Numero, situacaoImportado.Situacao.Id);
+                    var pedidoUpdated = blingClient.ExecuteUpdateOrder(pedido.Pedido.Numero, situacaoImportado);
                     Console.WriteLine($"O pedido {pedido.Pedido.Numero} foi atualizado");
                 }
                 catch (BlingException e)
