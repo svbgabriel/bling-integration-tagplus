@@ -39,6 +39,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             {
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
                 Log.Error("TagPlus - PostPedidos(PedidoBody body) - Erro durante a criação do pedido");
+                Log.Error(JsonConvert.SerializeObject(body));
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
@@ -211,6 +212,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             {
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
                 Log.Error("TagPlus - PostCliente(ClienteBody clienteBody) - Erro durante a criação do cliente");
+                Log.Error(JsonConvert.SerializeObject(clienteBody));
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
