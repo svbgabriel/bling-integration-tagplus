@@ -62,6 +62,18 @@ namespace BlingIntegrationTagplus
 
             Log.Information("Iniciando o processo");
 
+            // Verifica a data inicial
+            var initialDate = DateTime.Parse(blingInitialDate);
+            if (initialDate.CompareTo(DateTime.Now) > 0)
+            {
+                Console.WriteLine("A data inicial informada é maior que a data atual. O processo não será executado");
+                Console.WriteLine("Aperte Enter para fechar");
+                Console.ReadLine();
+                Log.Information("Processo finalizado");
+                Log.CloseAndFlush();
+                Environment.Exit(0);
+            }
+
             // Inicializa o banco de dados local
             using var db = new IntegrationContext();
             // Realiza as migrações
@@ -132,7 +144,7 @@ namespace BlingIntegrationTagplus
             try
             {
                 BuildOrdersFilter filters = new BuildOrdersFilter();
-                string filter = filters.AddDateFilter(DateTime.Parse(blingInitialDate), DateTime.Now)
+                string filter = filters.AddDateFilter(initialDate, DateTime.Now)
                     .AddSituation(situacaoEmAberto)
                     .Build();
                 pedidos = blingClient.ExecuteGetOrder(filter);
