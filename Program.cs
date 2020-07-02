@@ -49,7 +49,8 @@ namespace BlingIntegrationTagplus
             catch (FileNotFoundException e)
             {
                 Console.WriteLine($"O arquivo .env não foi encontrado: {e.Message}");
-                Console.WriteLine("Encerrando...");
+                Console.WriteLine("Aperte Enter para fechar");
+                Console.ReadLine();
                 Environment.Exit(-1);
             }
 
@@ -80,7 +81,8 @@ namespace BlingIntegrationTagplus
             catch (BlingException e)
             {
                 Console.WriteLine($"Não foi possível recuperar as situações: {e.Message}");
-                Console.WriteLine("Encerrando...");
+                Console.WriteLine("Aperte Enter para fechar");
+                Console.ReadLine();
                 Environment.Exit(-1);
             }
             var situacaoImportado = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Importado no TagPlus")).Situacao.Id;
@@ -97,7 +99,8 @@ namespace BlingIntegrationTagplus
             catch (TagPlusException e)
             {
                 Console.WriteLine($"Não foi possível recuperar os tipos de contato: {e.Message}");
-                Console.WriteLine("Encerrando...");
+                Console.WriteLine("Aperte Enter para fechar");
+                Console.ReadLine();
                 Environment.Exit(-1);
             }
             var emailContato = tiposContato.First(contato => contato.Descricao.Equals("Email")).Id;
@@ -113,7 +116,8 @@ namespace BlingIntegrationTagplus
             catch (TagPlusException e)
             {
                 Console.WriteLine($"Não foi possível recuperar as formas de pagamento: {e.Message}");
-                Console.WriteLine("Encerrando...");
+                Console.WriteLine("Aperte Enter para fechar");
+                Console.ReadLine();
                 Environment.Exit(-1);
             }
 
@@ -133,6 +137,8 @@ namespace BlingIntegrationTagplus
             catch (BlingException e)
             {
                 Console.WriteLine($"Não foi possível recuperar os pedidos do Bling - {e.Message}");
+                Console.WriteLine("Aperte Enter para fechar");
+                Console.ReadLine();
                 Environment.Exit(-1);
             }
 
@@ -140,6 +146,10 @@ namespace BlingIntegrationTagplus
             if (pedidos == null || pedidos.Count == 0)
             {
                 Console.WriteLine("Não foram encontrados pedidos no Bling");
+                Log.Information("Processo finalizado");
+                Console.WriteLine("Aperte Enter para fechar");
+                Console.ReadLine();
+                Log.CloseAndFlush();
                 Environment.Exit(0);
             }
 
@@ -337,6 +347,8 @@ namespace BlingIntegrationTagplus
                 catch (TagPlusException e)
                 {
                     Console.WriteLine($"Não foi possível cadastrar o pedido: {e.Message}");
+                    Console.WriteLine("Aperte Enter para fechar");
+                    Console.ReadLine();
                 }
 
                 // Atualiza a situação no Bling
@@ -349,6 +361,8 @@ namespace BlingIntegrationTagplus
                 catch (BlingException e)
                 {
                     Console.WriteLine($"Não foi possível atualizar o pedido {pedido.Pedido.Numero} no Bling: {e.Message}");
+                    Console.WriteLine("Aperte Enter para fechar");
+                    Console.ReadLine();
                 }
 
                 Console.WriteLine("--------------------------------------------");
@@ -358,6 +372,8 @@ namespace BlingIntegrationTagplus
             Log.Information("Processo finalizado");
             Log.CloseAndFlush();
             Console.WriteLine("Processo finalizado");
+            Console.WriteLine("Aperte Enter para fechar");
+            Console.ReadLine();
         }
     }
 }
