@@ -80,6 +80,7 @@ namespace BlingIntegrationTagplus
             }
             catch (BlingException e)
             {
+                Log.Error($"Não foi possível recuperar as situações: {e.Message}");
                 Console.WriteLine($"Não foi possível recuperar as situações: {e.Message}");
                 Console.WriteLine("Aperte Enter para fechar");
                 Console.ReadLine();
@@ -98,6 +99,7 @@ namespace BlingIntegrationTagplus
             }
             catch (TagPlusException e)
             {
+                Log.Error($"Não foi possível recuperar os tipos de contato: {e.Message}");
                 Console.WriteLine($"Não foi possível recuperar os tipos de contato: {e.Message}");
                 Console.WriteLine("Aperte Enter para fechar");
                 Console.ReadLine();
@@ -115,6 +117,7 @@ namespace BlingIntegrationTagplus
             }
             catch (TagPlusException e)
             {
+                Log.Error($"Não foi possível recuperar as formas de pagamento: {e.Message}");
                 Console.WriteLine($"Não foi possível recuperar as formas de pagamento: {e.Message}");
                 Console.WriteLine("Aperte Enter para fechar");
                 Console.ReadLine();
@@ -136,6 +139,7 @@ namespace BlingIntegrationTagplus
             }
             catch (BlingException e)
             {
+                Log.Error($"Não foi possível recuperar os pedidos do Bling - {e.Message}");
                 Console.WriteLine($"Não foi possível recuperar os pedidos do Bling - {e.Message}");
                 Console.WriteLine("Aperte Enter para fechar");
                 Console.ReadLine();
@@ -235,7 +239,7 @@ namespace BlingIntegrationTagplus
                         contatos.Add(celular);
                     }
 
-                    // Caso não seja encontrado nenhum contrato, remove do cadastro
+                    // Caso existam contatos, adiciona ao contato
                     if (contatos.Count > 0)
                     {
                         cliente.Contatos = contatos;
@@ -279,6 +283,7 @@ namespace BlingIntegrationTagplus
                     }
                     catch (TagPlusException e)
                     {
+                        Log.Error($"Não foi possível cadastrar o cliente: {e.Message}");
                         Console.WriteLine($"Não foi possível cadastrar o cliente: {e.Message}");
                         Console.WriteLine("--------------------------------------------");
                         Console.WriteLine();
@@ -346,6 +351,7 @@ namespace BlingIntegrationTagplus
                 }
                 catch (TagPlusException e)
                 {
+                    Log.Error($"Não foi possível cadastrar o pedido: {e.Message}");
                     Console.WriteLine($"Não foi possível cadastrar o pedido: {e.Message}");
                     Console.WriteLine("Aperte Enter para fechar");
                     Console.ReadLine();
@@ -360,6 +366,7 @@ namespace BlingIntegrationTagplus
                 }
                 catch (BlingException e)
                 {
+                    Log.Error($"Não foi possível atualizar o pedido {pedido.Pedido.Numero} no Bling: {e.Message}");
                     Console.WriteLine($"Não foi possível atualizar o pedido {pedido.Pedido.Numero} no Bling: {e.Message}");
                     Console.WriteLine("Aperte Enter para fechar");
                     Console.ReadLine();
