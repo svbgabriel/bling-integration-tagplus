@@ -34,7 +34,7 @@ namespace BlingIntegrationTagplus.Utils
                 // Remove o registro antigo
                 if (token == null)
                 {
-                    db.Add(new TagPlusToken("TagplusToken", code, expirationDate.ToString("dd/MM/yyyy HH:mm:ss")));
+                    db.Add(new TagPlusToken("TagplusToken", code.Trim(), expirationDate.ToString("dd/MM/yyyy HH:mm:ss")));
                 }
                 else
                 {
