@@ -365,8 +365,9 @@ namespace BlingIntegrationTagplus
                 {
                     Log.Error($"Não foi possível cadastrar o pedido: {e.Message}");
                     Console.WriteLine($"Não foi possível cadastrar o pedido: {e.Message}");
-                    Console.WriteLine("Aperte Enter para fechar");
-                    Console.ReadLine();
+                    Console.WriteLine("--------------------------------------------");
+                    Console.WriteLine();
+                    continue;
                 }
 
                 // Atualiza a situação no Bling
