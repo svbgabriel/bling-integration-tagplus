@@ -30,7 +30,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             client.UseNewtonsoftJson();
             var request = new RestRequest("pedidos", DataFormat.Json);
             request.AddHeader("X-Api-Version", "2.0");
-            request.AddHeader("Authorization", $"Bearer {AccessToken}");
+            request.AddHeader("apikey", AccessToken);
             request.AddHeader("Accept", "application/json");
             request.AddJsonBody(body);
             var response = client.Post(request);
@@ -55,7 +55,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             var client = new RestClient("https://api.tagplus.com.br");
             var request = new RestRequest("departamentos", DataFormat.Json);
             request.AddHeader("X-Api-Version", "2.0");
-            request.AddHeader("Authorization", $"Bearer {AccessToken}");
+            request.AddHeader("apikey", AccessToken);
             request.AddHeader("Accept", "application/json");
             var response = client.Get(request);
 
@@ -78,7 +78,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             var client = new RestClient("https://api.tagplus.com.br");
             var request = new RestRequest("departamentos", DataFormat.Json);
             request.AddHeader("X-Api-Version", "2.0");
-            request.AddHeader("Authorization", $"Bearer {AccessToken}");
+            request.AddHeader("apikey", AccessToken);
             request.AddQueryParameter("descricao", nomeDepartamento);
             request.AddHeader("Accept", "application/json");
             var response = client.Get(request);
@@ -109,7 +109,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             var client = new RestClient("https://api.tagplus.com.br");
             var request = new RestRequest("clientes", DataFormat.Json);
             request.AddHeader("X-Api-Version", "2.0");
-            request.AddHeader("Authorization", $"Bearer {AccessToken}");
+            request.AddHeader("apikey", AccessToken);
             request.AddQueryParameter("razao_social", nome);
             request.AddHeader("Accept", "application/json");
             var response = client.Get(request);
@@ -140,7 +140,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             var client = new RestClient("https://api.tagplus.com.br");
             var request = new RestRequest("clientes", DataFormat.Json);
             request.AddHeader("X-Api-Version", "2.0");
-            request.AddHeader("Authorization", $"Bearer {AccessToken}");
+            request.AddHeader("apikey", AccessToken);
             request.AddQueryParameter("cpf", cpf);
             request.AddHeader("Accept", "application/json");
             var response = client.Get(request);
@@ -171,7 +171,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             var client = new RestClient("https://api.tagplus.com.br");
             var request = new RestRequest("clientes", DataFormat.Json);
             request.AddHeader("X-Api-Version", "2.0");
-            request.AddHeader("Authorization", $"Bearer {AccessToken}");
+            request.AddHeader("apikey", AccessToken);
             request.AddQueryParameter("cnpj", cnpj);
             request.AddHeader("Accept", "application/json");
             var response = client.Get(request);
@@ -203,7 +203,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             client.UseNewtonsoftJson();
             var request = new RestRequest("clientes", DataFormat.Json);
             request.AddHeader("X-Api-Version", "2.0");
-            request.AddHeader("Authorization", $"Bearer {AccessToken}");
+            request.AddHeader("apikey", AccessToken);
             request.AddHeader("Accept", "application/json");
             request.AddJsonBody(clienteBody);
             var response = client.Post(request);
@@ -228,7 +228,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             var client = new RestClient("https://api.tagplus.com.br");
             var request = new RestRequest("produtos", DataFormat.Json);
             request.AddHeader("X-Api-Version", "2.0");
-            request.AddHeader("Authorization", $"Bearer {AccessToken}");
+            request.AddHeader("apikey", AccessToken);
             request.AddQueryParameter("codigo", codigo);
             request.AddHeader("Accept", "application/json");
             var response = client.Get(request);
@@ -259,7 +259,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             var client = new RestClient("https://api.tagplus.com.br");
             var request = new RestRequest("formas_pagamento", DataFormat.Json);
             request.AddHeader("X-Api-Version", "2.0");
-            request.AddHeader("Authorization", $"Bearer {AccessToken}");
+            request.AddHeader("apikey", AccessToken);
             request.AddHeader("Accept", "application/json");
             var response = client.Get(request);
 
@@ -282,7 +282,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             var client = new RestClient("https://api.tagplus.com.br");
             var request = new RestRequest("formas_pagamento", DataFormat.Json);
             request.AddHeader("X-Api-Version", "2.0");
-            request.AddHeader("Authorization", $"Bearer {AccessToken}");
+            request.AddHeader("apikey", AccessToken);
             request.AddQueryParameter("descricao", descricao);
             request.AddHeader("Accept", "application/json");
             var response = client.Get(request);
@@ -313,7 +313,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             var client = new RestClient("https://api.tagplus.com.br");
             var request = new RestRequest("tipos_contatos", DataFormat.Json);
             request.AddHeader("X-Api-Version", "2.0");
-            request.AddHeader("Authorization", $"Bearer {AccessToken}");
+            request.AddHeader("apikey", AccessToken);
             request.AddHeader("Accept", "application/json");
             var response = client.Get(request);
 
@@ -336,7 +336,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             var client = new RestClient("https://api.tagplus.com.br");
             var request = new RestRequest("tipos_contatos", DataFormat.Json);
             request.AddHeader("X-Api-Version", "2.0");
-            request.AddHeader("Authorization", $"Bearer {AccessToken}");
+            request.AddHeader("apikey", AccessToken);
             request.AddQueryParameter("descricao", descricao);
             request.AddHeader("Accept", "application/json");
             var response = client.Get(request);

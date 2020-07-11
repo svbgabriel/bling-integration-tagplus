@@ -7,12 +7,10 @@ using BlingIntegrationTagplus.Clients.TagPlus.Models.Clientes;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.FormasPagamento;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.TiposContatos;
-using BlingIntegrationTagplus.Databases;
 using BlingIntegrationTagplus.Exceptions;
 using BlingIntegrationTagplus.Utils;
 using dotenv.net;
 using dotenv.net.Utilities;
-using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -37,6 +35,7 @@ namespace BlingIntegrationTagplus
             // Carrega o arquivo de configuração
             string blingApiKey = "";
             string blingInitialDate = "";
+            string tagplusToken = "";
             try
             {
                 DotEnv.Config();
@@ -45,6 +44,8 @@ namespace BlingIntegrationTagplus
                 blingApiKey = envReader.GetStringValue("BLING_API_KEY");
                 // Carrega a data inicial do Bling
                 blingInitialDate = envReader.GetStringValue("BLING_INITIAL_DATE");
+                // Carrega o Token do Tagplus
+                tagplusToken = envReader.GetStringValue("TAGPLUS_TOKEN");
             }
             catch (FileNotFoundException e)
             {
@@ -74,13 +75,6 @@ namespace BlingIntegrationTagplus
                 Environment.Exit(0);
             }
 
-            // Inicializa o banco de dados local
-            using var db = new IntegrationContext();
-            // Realiza as migrações
-            db.Database.Migrate();
-            // Verifica se o Token do Tagplus já está no banco de dados e válido
-            string code = DBUtils.RetriveTagPlusToken(db);
-
             // Inicializa o cliente do Bling
             var blingClient = new BlingClient(blingApiKey);
 
@@ -101,7 +95,7 @@ namespace BlingIntegrationTagplus
             var situacaoImportado = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Importado no TagPlus")).Situacao.Id;
             var situacaoEmAberto = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Em aberto")).Situacao.Id;
 
-            TagPlusClient tagPlusClient = new TagPlusClient(code);
+            TagPlusClient tagPlusClient = new TagPlusClient(tagplusToken);
 
             // Encontra os tipos de contato
             IList<GetTiposContatosResponse> tiposContato = null;
