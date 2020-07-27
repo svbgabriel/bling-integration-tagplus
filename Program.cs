@@ -94,6 +94,7 @@ namespace BlingIntegrationTagplus
             }
             var situacaoImportado = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Importado no TagPlus")).Situacao.Id;
             var situacaoEmAberto = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Em aberto")).Situacao.Id;
+            var situacaoEmAndamento = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Em andamento")).Situacao.Id;
 
             TagPlusClient tagPlusClient = new TagPlusClient(tagplusToken);
 
@@ -151,6 +152,30 @@ namespace BlingIntegrationTagplus
                 Console.ReadLine();
                 Environment.Exit(-1);
             }
+
+            // Contorno para pedidos do Íntegra
+            List<PedidoItem> pedidosIntegra = null;
+            try
+            {
+                BuildOrdersFilter filters = new BuildOrdersFilter();
+                string filter = filters.AddDateFilter(initialDate, DateTime.Now)
+                    .AddSituation(situacaoEmAndamento)
+                    .Build();
+                List<PedidoItem> pedidosIntegraTotal = blingClient.ExecuteGetOrder(filter);
+                // Filtra os pedidos para somente os do canal Íntegra
+                pedidosIntegra = pedidosIntegraTotal.Where(pedido => pedido.Pedido.TipoIntegracao.Equals("IntegraCommerce")).ToList();
+            }
+            catch (BlingException e)
+            {
+                pedidosIntegra = new List<PedidoItem>();
+                Log.Error($"Não foi possível recuperar os pedidos do Íntegra no Bling - {e.Message}");
+                Console.WriteLine($"Não foi possível recuperar os pedidos do Íntegra no Bling - {e.Message}");
+                Console.WriteLine("Aperte Enter para continuar");
+                Console.ReadLine();
+            }
+
+            // Junta as listas de pedidos
+            pedidos.AddRange(pedidosIntegra);
 
             // Verifica se existem pedidos
             if (pedidos == null || pedidos.Count == 0)
