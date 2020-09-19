@@ -36,6 +36,7 @@ namespace BlingIntegrationTagplus
             string blingApiKey = "";
             string blingInitialDate = "";
             string tagplusToken = "";
+            string blingOrderNum = "";
             try
             {
                 DotEnv.Config();
@@ -46,6 +47,8 @@ namespace BlingIntegrationTagplus
                 blingInitialDate = envReader.GetStringValue("BLING_INITIAL_DATE");
                 // Carrega o Token do Tagplus
                 tagplusToken = envReader.GetStringValue("TAGPLUS_TOKEN");
+                // Carrega o número de pedido especifico
+                envReader.TryGetStringValue("BLING_ORDER_NUM", out blingOrderNum);
             }
             catch (FileNotFoundException e)
             {
@@ -142,7 +145,17 @@ namespace BlingIntegrationTagplus
                 string filter = filters.AddDateFilter(initialDate, DateTime.Now)
                     .AddSituation(situacaoEmAberto)
                     .Build();
-                pedidos = blingClient.ExecuteGetOrder(filter);
+
+                // Verifica se somente um pedido será importado
+                if (string.IsNullOrWhiteSpace(blingOrderNum))
+                {
+                    pedidos = blingClient.ExecuteGetOrder(filter);
+                }
+                else
+                {
+                    int orderNum = int.Parse(blingOrderNum);
+                    pedidos = blingClient.ExecuteGetOrder(orderNum);                    
+                }
             }
             catch (BlingException e)
             {

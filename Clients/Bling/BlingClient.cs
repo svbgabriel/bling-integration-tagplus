@@ -103,6 +103,30 @@ namespace BlingIntegrationTagplus.Clients.Bling
             return pedidosResult;
         }
 
+        public List<PedidoItem> ExecuteGetOrder(int orderNum)
+        {
+            List<PedidoItem> pedidosResult = new List<PedidoItem>();
+            var client = new RestClient("https://bling.com.br");
+
+            var request = new RestRequest($"Api/v2/pedido/{orderNum}/json", DataFormat.Json);
+            request.AddQueryParameter("apikey", ApiKey);
+            var response = client.Get(request);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                var error = JsonConvert.DeserializeObject<PedidosResponseError>(response.Content);
+                Log.Error("Bling - ExecuteGetOrder(int orderNum) - Erro durante a recuperação do pedido");
+                Log.Error($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
+                throw new BlingException($"Código {error.Retorno.Erros.Erro.Cod} : {error.Retorno.Erros.Erro.Msg}");
+            }
+            else
+            {
+                var pedidos = JsonConvert.DeserializeObject<GetPedidosResponse>(response.Content);
+                pedidosResult.AddRange(pedidos.Retorno.Pedidos);
+                return pedidosResult;
+            }            
+        }
+
         public GetSituacaoResponse ExecuteGetSituacao()
         {
             var client = new RestClient("https://bling.com.br");
