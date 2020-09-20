@@ -153,6 +153,7 @@ namespace BlingIntegrationTagplus
                 }
                 else
                 {
+                    Console.WriteLine($"Procurando somente pelo pedido {blingOrderNum} no Bling");
                     int orderNum = int.Parse(blingOrderNum);
                     pedidos = blingClient.ExecuteGetOrder(orderNum);                    
                 }
