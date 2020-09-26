@@ -3,6 +3,7 @@ using BlingIntegrationTagplus.Clients.TagPlus.Models.Clientes;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.Departamentos;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.FormasPagamento;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos;
+using BlingIntegrationTagplus.Clients.TagPlus.Models.PedidosCompra;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.Produtos;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.TiposContatos;
 using BlingIntegrationTagplus.Exceptions;
@@ -361,6 +362,32 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
                 }
                 int id = tiposContatos[0].Id;
                 return id;
+            }
+        }
+
+        public GetPedidoCompraResponse PostPedidoCompra(PedidoCompraBody body)
+        {
+            var client = new RestClient(ApiUrl);
+            client.UseNewtonsoftJson();
+            var request = new RestRequest("pedidos_compra", DataFormat.Json);
+            request.AddHeader("X-Api-Version", "2.0");
+            request.AddHeader("apikey", AccessToken);
+            request.AddHeader("Accept", "application/json");
+            request.AddJsonBody(body);
+            var response = client.Post(request);
+
+            if (response.StatusCode != HttpStatusCode.Created)
+            {
+                var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
+                Log.Error("TagPlus - PostPedidos(PedidoCompraBody body) - Erro durante a criação do pedido de compra");
+                Log.Error(JsonConvert.SerializeObject(body));
+                Log.Error($"Código {error.ErrorCode} : {error.Message}");
+                throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
+            }
+            else
+            {
+                var pedido = JsonConvert.DeserializeObject<GetPedidoCompraResponse>(response.Content);
+                return pedido;
             }
         }
     }

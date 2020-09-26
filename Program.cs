@@ -3,6 +3,7 @@ using BlingIntegrationTagplus.Clients.Bling.Models.Pedidos;
 using BlingIntegrationTagplus.Clients.TagPlus;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.FormasPagamento;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos;
+using BlingIntegrationTagplus.Clients.TagPlus.Models.PedidosCompra;
 using BlingIntegrationTagplus.Exceptions;
 using BlingIntegrationTagplus.Models;
 using BlingIntegrationTagplus.Services;
@@ -183,6 +184,24 @@ namespace BlingIntegrationTagplus
                     continue;
                 }
 
+                // Recupera os Itens para os pedidos e pedidos de compra
+                IList<Clients.TagPlus.Models.PedidosCompra.Item> itensCompra = new List<Clients.TagPlus.Models.PedidosCompra.Item>();
+                for (int i = 0; i < pedido.Pedido.Itens.Count; i++)
+                {
+                    Clients.Bling.Models.Pedidos.Item blingItem = pedido.Pedido.Itens[i].Item;
+                    int produtoServico = tagPlusClient.GetProduto(blingItem.Codigo);                   
+                    // Pedido de Compra
+                    Clients.TagPlus.Models.PedidosCompra.Item tagPlusItemCompra = new Clients.TagPlus.Models.PedidosCompra.Item
+                    {
+                        NumItem = i,
+                        ProdutoServico = produtoServico,
+                        Qtd = Convert.ToInt32(float.Parse(blingItem.Quantidade, CultureInfo.InvariantCulture.NumberFormat)),
+                        ValorUnitario = float.Parse(blingItem.Valorunidade, CultureInfo.InvariantCulture.NumberFormat),
+                        ValorDesconto = float.Parse(blingItem.DescontoItem, CultureInfo.InvariantCulture.NumberFormat)
+                    };
+                    itensCompra.Add(tagPlusItemCompra);
+                }                
+
                 // Recupera as faturas
                 IList<Fatura> faturas = faturaService.ConstructFatura(pedido, formasPagamento);
 
@@ -200,14 +219,36 @@ namespace BlingIntegrationTagplus
                 };
 
                 // Envia o novo pedido
+                Clients.TagPlus.Models.Pedidos.GetPedidosResponse response;
                 try
                 {
-                    Clients.TagPlus.Models.Pedidos.GetPedidosResponse response = tagPlusClient.PostPedidos(body);
+                    response = tagPlusClient.PostPedidos(body);
                     Log.Information($"Pedido cadastrado no TagPlus com o ID: {response.Id}");
                 }
                 catch (TagPlusException e)
                 {
                     Log.Error($"Não foi possível cadastrar o pedido: {e.Message}");
+                    Log.Information("--------------------------------------------");
+                    continue;
+                }
+
+                // Cria o corpo do pedido de compra
+                PedidoCompraBody pedidoCompraBody = new PedidoCompraBody
+                {
+                    Itens = itensCompra,
+                    Observacoes = $"Número do Pedido Tagplus: {response.Numero}"
+                };
+
+                // Envia o novo pedido de compra
+                try
+                {
+                    var responsePedidoCompra = tagPlusClient.PostPedidoCompra(pedidoCompraBody);
+                    Log.Information($"Pedido de compra cadastrado no TagPlus com o Número: {responsePedidoCompra.Numero}");
+                }
+                catch (TagPlusException e)
+                {
+                    Log.Error($"Não foi possível cadastrar o pedido de compra: {e.Message}");
+                    Log.Information($"Não foi possível cadastrar o pedido compra: {e.Message}");
                     Log.Information("--------------------------------------------");
                     continue;
                 }
