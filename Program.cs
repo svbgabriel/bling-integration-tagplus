@@ -32,6 +32,9 @@ namespace BlingIntegrationTagplus
             Console.WriteLine();
             Console.WriteLine("Preparando...");
 
+            // Define a cor de erro
+            ConsoleColor errorColor = ConsoleColor.Red;
+
             // Carrega o arquivo de configuração
             string blingApiKey = "";
             string blingInitialDate = "";
@@ -50,11 +53,22 @@ namespace BlingIntegrationTagplus
                 // Carrega o número de pedido especifico
                 envReader.TryGetStringValue("BLING_ORDER_NUM", out blingOrderNum);
             }
-            catch (FileNotFoundException e)
+            catch (FileNotFoundException)
             {
-                Console.WriteLine($"O arquivo .env não foi encontrado: {e.Message}");
+                Console.ForegroundColor = errorColor;
+                Console.WriteLine($"O arquivo .env não foi encontrado");
                 Console.WriteLine("Aperte Enter para fechar");
                 Console.ReadLine();
+                Console.ResetColor();
+                Environment.Exit(-1);
+            }
+            catch (Exception e)
+            {
+                Console.ForegroundColor = errorColor;
+                Console.WriteLine($"Erro: {e.Message}");
+                Console.WriteLine("Aperte Enter para fechar");
+                Console.ReadLine();
+                Console.ResetColor();
                 Environment.Exit(-1);
             }
 
@@ -89,10 +103,12 @@ namespace BlingIntegrationTagplus
             }
             catch (BlingException e)
             {
+                Console.ForegroundColor = errorColor;
                 Log.Error($"Não foi possível recuperar as situações: {e.Message}");
                 Console.WriteLine($"Não foi possível recuperar as situações: {e.Message}");
                 Console.WriteLine("Aperte Enter para fechar");
                 Console.ReadLine();
+                Console.ResetColor();
                 Environment.Exit(-1);
             }
             var situacaoImportado = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Importado no TagPlus")).Situacao.Id;
@@ -109,10 +125,12 @@ namespace BlingIntegrationTagplus
             }
             catch (TagPlusException e)
             {
+                Console.ForegroundColor = errorColor;
                 Log.Error($"Não foi possível recuperar os tipos de contato: {e.Message}");
                 Console.WriteLine($"Não foi possível recuperar os tipos de contato: {e.Message}");
                 Console.WriteLine("Aperte Enter para fechar");
                 Console.ReadLine();
+                Console.ResetColor();
                 Environment.Exit(-1);
             }
             var emailContato = tiposContato.First(contato => contato.Descricao.Equals("Email")).Id;
@@ -127,10 +145,12 @@ namespace BlingIntegrationTagplus
             }
             catch (TagPlusException e)
             {
+                Console.ForegroundColor = errorColor;
                 Log.Error($"Não foi possível recuperar as formas de pagamento: {e.Message}");
                 Console.WriteLine($"Não foi possível recuperar as formas de pagamento: {e.Message}");
                 Console.WriteLine("Aperte Enter para fechar");
                 Console.ReadLine();
+                Console.ResetColor();
                 Environment.Exit(-1);
             }
 
@@ -160,17 +180,19 @@ namespace BlingIntegrationTagplus
             }
             catch (BlingException e)
             {
+                Console.ForegroundColor = errorColor;
                 Log.Error($"Não foi possível recuperar os pedidos do Bling - {e.Message}");
                 Console.WriteLine($"Não foi possível recuperar os pedidos do Bling - {e.Message}");
                 Console.WriteLine("Aperte Enter para fechar");
                 Console.ReadLine();
+                Console.ResetColor();
                 Environment.Exit(-1);
             }
 
             if (string.IsNullOrWhiteSpace(blingOrderNum))
             {
                 // Contorno para pedidos do Íntegra
-                List<PedidoItem> pedidosIntegra = null;
+                List<PedidoItem> pedidosIntegra = new List<PedidoItem>();
                 try
                 {
                     BuildOrdersFilter filters = new BuildOrdersFilter();
@@ -183,10 +205,11 @@ namespace BlingIntegrationTagplus
                 }
                 catch (BlingException e)
                 {
-                    pedidosIntegra = new List<PedidoItem>();
+                    Console.ForegroundColor = errorColor;
                     Log.Error($"Não foi possível recuperar os pedidos do Íntegra no Bling - {e.Message}");
                     Console.WriteLine($"Não foi possível recuperar os pedidos do Íntegra no Bling - {e.Message}");
                     Console.WriteLine("Aperte Enter para continuar");
+                    Console.ResetColor();
                     Console.ReadLine();
                 }
 
@@ -331,10 +354,12 @@ namespace BlingIntegrationTagplus
                     }
                     catch (TagPlusException e)
                     {
+                        Console.ForegroundColor = errorColor;
                         Log.Error($"Não foi possível cadastrar o cliente: {e.Message}");
                         Console.WriteLine($"Não foi possível cadastrar o cliente: {e.Message}");
                         Console.WriteLine("--------------------------------------------");
                         Console.WriteLine();
+                        Console.ResetColor();
                         continue;
                     }
                 }
@@ -399,10 +424,12 @@ namespace BlingIntegrationTagplus
                 }
                 catch (TagPlusException e)
                 {
+                    Console.ForegroundColor = errorColor;
                     Log.Error($"Não foi possível cadastrar o pedido: {e.Message}");
                     Console.WriteLine($"Não foi possível cadastrar o pedido: {e.Message}");
                     Console.WriteLine("--------------------------------------------");
                     Console.WriteLine();
+                    Console.ResetColor();
                     continue;
                 }
 
@@ -415,9 +442,11 @@ namespace BlingIntegrationTagplus
                 }
                 catch (BlingException e)
                 {
+                    Console.ForegroundColor = errorColor;
                     Log.Error($"Não foi possível atualizar o pedido {pedido.Pedido.Numero} no Bling: {e.Message}");
                     Console.WriteLine($"Não foi possível atualizar o pedido {pedido.Pedido.Numero} no Bling: {e.Message}");
                     Console.WriteLine("Aperte Enter para fechar");
+                    Console.ResetColor();
                     Console.ReadLine();
                 }
 
