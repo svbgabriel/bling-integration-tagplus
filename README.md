@@ -1,7 +1,7 @@
 # Integração de Pedidos Bling - TagPlus
 
 Essa é uma integração simples, que encontra pedidos de venda no Bling e cadastra como pedidos no TagPlus.
-Foi testada no .net Core, foi testada na versão 3.1 no sistema operacional Windows.
+Foi testada no .net Core, foi testada na versão 5.0 no sistema operacional Windows.
 
 ## Para desenvolver
 
@@ -14,10 +14,10 @@ dotnet restore
 ## Para gerar um executável
 
 ```
-dotnet publish --runtime win-x64 --self-contained true -p:PublishSingleFile=true --framework netcoreapp3.1 --configuration Release
+dotnet publish -r win-x64 /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true -c Release
 ```
 
-Um executável para o Windows 64-bits vai estar disponível em bling-integration-tagplus\bin\Release\netcoreapp3.1\win-x64\publish
+Um executável para o Windows 64-bits vai estar disponível em bling-integration-tagplus\bin\Release\net5.0\win-x64\publish
 
 ## Para executar
 
