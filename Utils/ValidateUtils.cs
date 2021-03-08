@@ -2,6 +2,9 @@ namespace BlingIntegrationTagplus.Utils
 {
     public class ValidateUtils
     {
+
+        protected ValidateUtils() {}
+
         public static bool IsCnpj(string cnpj)
         {
             int[] multiplicador1 = new int[12] { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };

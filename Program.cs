@@ -23,7 +23,9 @@ namespace BlingIntegrationTagplus
     class Program
     {
 
-        static void Main(string[] args)
+        protected Program() {}
+
+        static void Main()
         {
             Console.WriteLine("############################################");
             Console.WriteLine("## Bem vindo a integração Bling - Tagplus ##");
