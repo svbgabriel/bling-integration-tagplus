@@ -11,8 +11,9 @@ namespace BlingIntegrationTagplus.Clients.Bling
 {
     class BlingClient
     {
-        private string ApiKey { get; set; }
+        private readonly string ApiKey;
         private readonly int API_LIMIT = 100;
+        private readonly string ApiUrl = "https://bling.com.br";
 
         public BlingClient(string apiKey)
         {
@@ -24,7 +25,7 @@ namespace BlingIntegrationTagplus.Clients.Bling
             int page = 1;
             bool hasNext = true;
             List<PedidoItem> pedidosResult = new List<PedidoItem>();
-            var client = new RestClient("https://bling.com.br");
+            var client = new RestClient(ApiUrl);
             while (hasNext)
             {
                 var request = new RestRequest($"Api/v2/pedidos/page={page}/json", DataFormat.Json);
@@ -65,7 +66,7 @@ namespace BlingIntegrationTagplus.Clients.Bling
             int page = 1;
             bool hasNext = true;
             List<PedidoItem> pedidosResult = new List<PedidoItem>();
-            var client = new RestClient("https://bling.com.br");
+            var client = new RestClient(ApiUrl);
             while (hasNext)
             {
                 var request = new RestRequest($"Api/v2/pedidos/page={page}/json", DataFormat.Json);
@@ -106,7 +107,7 @@ namespace BlingIntegrationTagplus.Clients.Bling
         public List<PedidoItem> ExecuteGetOrder(int orderNum)
         {
             List<PedidoItem> pedidosResult = new List<PedidoItem>();
-            var client = new RestClient("https://bling.com.br");
+            var client = new RestClient(ApiUrl);
 
             var request = new RestRequest($"Api/v2/pedido/{orderNum}/json", DataFormat.Json);
             request.AddQueryParameter("apikey", ApiKey);
@@ -129,7 +130,7 @@ namespace BlingIntegrationTagplus.Clients.Bling
 
         public GetSituacaoResponse ExecuteGetSituacao()
         {
-            var client = new RestClient("https://bling.com.br");
+            var client = new RestClient(ApiUrl);
             var request = new RestRequest("Api/v2/situacao/Vendas/json", DataFormat.Json);
             request.AddQueryParameter("apikey", ApiKey);
             var response = client.Get(request);
@@ -151,7 +152,7 @@ namespace BlingIntegrationTagplus.Clients.Bling
         public PutPedidosResponse ExecuteUpdateOrder(string numero, string situacao)
         {
             string xmlTemplate = $"<?xml version=\"1.0\" encoding=\"UTF-8\"?><pedido><idSituacao>{situacao}</idSituacao></pedido>";
-            var client = new RestClient("https://bling.com.br");
+            var client = new RestClient(ApiUrl);
             var request = new RestRequest($"Api/v2/pedido/{numero}/json");
             request.AddHeader("Content-Type", "x-www-form-urlencoded");
             request.AddParameter("apikey", ApiKey);
