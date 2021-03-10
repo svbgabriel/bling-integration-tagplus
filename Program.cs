@@ -3,13 +3,11 @@ using BlingIntegrationTagplus.Clients.Bling.Filters;
 using BlingIntegrationTagplus.Clients.Bling.Models.Pedidos;
 using BlingIntegrationTagplus.Clients.Bling.Models.Situacao;
 using BlingIntegrationTagplus.Clients.TagPlus;
-using BlingIntegrationTagplus.Clients.TagPlus.Models.Clientes;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.FormasPagamento;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos;
-using BlingIntegrationTagplus.Clients.TagPlus.Models.TiposContatos;
 using BlingIntegrationTagplus.Exceptions;
 using BlingIntegrationTagplus.Models;
-using BlingIntegrationTagplus.Utils;
+using BlingIntegrationTagplus.Services;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -92,24 +90,25 @@ namespace BlingIntegrationTagplus
 
             var tagPlusClient = new TagPlusClient(config.TagplusToken, config.TagplusApiUrl);
 
+            // Inicializa os Services
+            var clieteService = new ClienteService(tagPlusClient);
+            var tipoContatoService = new TipoContatoService(tagPlusClient);
+
             // Encontra os tipos de contato
-            IList<GetTiposContatosResponse> tiposContato = null;
+            Dictionary<string, int> tiposContato = null;
             try
             {
-                tiposContato = tagPlusClient.GetTiposContatos();
+                tiposContato = tipoContatoService.GetListaContatos();
             }
-            catch (TagPlusException e)
+            catch (TipoContatoException e)
             {
-                Log.Error($"Não foi possível recuperar os tipos de contato: {e.Message}");
+                Log.Error(e.Message);
                 Log.Information("Aperte Enter para fechar");
                 Console.ReadLine();
                 Log.Information("Encerrando");
                 Log.CloseAndFlush();
                 Environment.Exit(-1);
-            }
-            var emailContato = tiposContato.First(contato => contato.Descricao.Equals("Email")).Id;
-            var celularContato = tiposContato.First(contato => contato.Descricao.Equals("Celular")).Id;
-            var telefoneContato = tiposContato.First(contato => contato.Descricao.Equals("Telefone")).Id;
+            }           
 
             // Encontra as formas de pagamento
             IList<GetFormasPagamentoResponse> formasPagamento = null;
@@ -194,7 +193,7 @@ namespace BlingIntegrationTagplus
                 Console.ReadLine();
                 Log.CloseAndFlush();
                 Environment.Exit(0);
-            }
+            }            
 
             // Envia os pedidos para o TagPlus
             Log.Information($"Foram encontrados {pedidos.Count} pedido(s)");
@@ -202,126 +201,23 @@ namespace BlingIntegrationTagplus
             {
                 Log.Information("--------------------------------------------");
                 Log.Information($"Tratando o Pedido {pedido.Pedido.Numero}");
-                // Tenta recupera o Cliente de várias maneiras
-                int clienteId = 0;
-                if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Cnpj))
-                {
-                    if (ValidateUtils.IsCpf(pedido.Pedido.Cliente.Cnpj))
-                    {
-                        clienteId = tagPlusClient.GetClienteByCpf(pedido.Pedido.Cliente.Cnpj);
-                    }
-                    else if (ValidateUtils.IsCnpj(pedido.Pedido.Cliente.Cnpj))
-                    {
-                        clienteId = tagPlusClient.GetClienteByCnpj(pedido.Pedido.Cliente.Cnpj);
-                    }
 
-                }
-                else
-                {
-                    clienteId = tagPlusClient.GetClienteByRazaoSocial(pedido.Pedido.Cliente.Nome);
-                }
+                // Tenta recupera o Cliente de várias maneiras
+                int clienteId = clieteService.GetCliente(pedido);
+
                 // Cria se não existir
                 if (clienteId == 0)
                 {
-                    Log.Information($"Cliente {pedido.Pedido.Cliente.Nome} não foi encontrado, cadastrando...");
-                    ClienteBody cliente = new ClienteBody();
-                    cliente.RazaoSocial = pedido.Pedido.Cliente.Nome;
-                    cliente.Ativo = true;
-                    if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Cnpj))
-                    {
-                        if (ValidateUtils.IsCpf(pedido.Pedido.Cliente.Cnpj))
-                        {
-                            cliente.Cpf = pedido.Pedido.Cliente.Cnpj;
-                            cliente.Tipo = "F";
-                        }
-                        else if (ValidateUtils.IsCnpj(pedido.Pedido.Cliente.Cnpj))
-                        {
-                            cliente.Cnpj = pedido.Pedido.Cliente.Cnpj;
-                            cliente.Tipo = "J";
-                        }
-                    }
-
-                    // Preenche as informações de contato
-                    List<Contato> contatos = new List<Contato>();
-                    // Verifica se existe o telefone
-                    if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Fone))
-                    {
-                        Contato fone = new Contato
-                        {
-                            TipoContato = telefoneContato,
-                            Descricao = pedido.Pedido.Cliente.Fone,
-                            Principal = true
-                        };
-                        contatos.Add(fone);
-                    }
-                    // Verifica se existe o e-mail
-                    if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Email))
-                    {
-                        Contato email = new Contato
-                        {
-                            TipoContato = emailContato,
-                            Descricao = pedido.Pedido.Cliente.Email,
-                            Principal = true
-                        };
-                        contatos.Add(email);
-                    }
-                    // Verifica se existe o celular
-                    if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Celular))
-                    {
-                        Contato celular = new Contato
-                        {
-                            TipoContato = celularContato,
-                            Descricao = pedido.Pedido.Cliente.Celular,
-                            Principal = true
-                        };
-                        contatos.Add(celular);
-                    }
-
-                    // Caso existam contatos, adiciona ao contato
-                    if (contatos.Count > 0)
-                    {
-                        cliente.Contatos = contatos;
-                    }
-
-                    // Preenche o endereço, se estiver disponível
-                    if (pedido.Pedido.Transporte != null)
-                    {
-                        cliente.Enderecos = new List<Endereco>();
-                        Endereco endereco = new Endereco
-                        {
-                            Logradouro = pedido.Pedido.Transporte.EnderecoEntrega.Endereco,
-                            Numero = pedido.Pedido.Transporte.EnderecoEntrega.Numero,
-                            Bairro = pedido.Pedido.Transporte.EnderecoEntrega.Bairro,
-                            Complemento = pedido.Pedido.Transporte.EnderecoEntrega.Complemento,
-                            Cep = pedido.Pedido.Transporte.EnderecoEntrega.Cep.Replace(".", ""),
-                            Principal = true
-                        };
-                        cliente.Enderecos.Add(endereco);
-                    }
-                    else if (pedido.Pedido.Cliente.Endereco != null && pedido.Pedido.Cliente.Numero != null
-                        && pedido.Pedido.Cliente.Cep != null && pedido.Pedido.Cliente.Bairro != null)
-                    {
-                        cliente.Enderecos = new List<Endereco>();
-                        Endereco endereco = new Endereco
-                        {
-                            Logradouro = pedido.Pedido.Cliente.Endereco,
-                            Numero = pedido.Pedido.Cliente.Numero,
-                            Bairro = pedido.Pedido.Cliente.Bairro,
-                            Complemento = pedido.Pedido.Cliente.Complemento,
-                            Cep = pedido.Pedido.Cliente.Cep.Replace(".", ""),
-                            Principal = true
-                        };
-                        cliente.Enderecos.Add(endereco);
-                    }
+                    Log.Information($"Cliente {pedido.Pedido.Cliente.Nome} não foi encontrado, cadastrando...");                    
 
                     // Envia o novo cliente
                     try
                     {
-                        clienteId = tagPlusClient.PostCliente(cliente);
+                        clienteId = clieteService.CreateCliente(pedido, tiposContato);
                     }
-                    catch (TagPlusException e)
+                    catch (ClienteException e)
                     {
-                        Log.Error($"Não foi possível cadastrar o cliente: {e.Message}");
+                        Log.Error(e.Message);
                         Log.Information("--------------------------------------------");
                         continue;
                     }
