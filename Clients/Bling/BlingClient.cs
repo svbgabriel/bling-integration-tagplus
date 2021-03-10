@@ -13,11 +13,12 @@ namespace BlingIntegrationTagplus.Clients.Bling
     {
         private readonly string ApiKey;
         private readonly int API_LIMIT = 100;
-        private readonly string ApiUrl = "https://bling.com.br";
+        private readonly string ApiUrl;
 
-        public BlingClient(string apiKey)
+        public BlingClient(string apiKey, string apiUrl)
         {
             ApiKey = apiKey;
+            ApiUrl = apiUrl;
         }
 
         public List<PedidoItem> ExecuteGetOrder()
@@ -125,7 +126,7 @@ namespace BlingIntegrationTagplus.Clients.Bling
                 var pedidos = JsonConvert.DeserializeObject<GetPedidosResponse>(response.Content);
                 pedidosResult.AddRange(pedidos.Retorno.Pedidos);
                 return pedidosResult;
-            }            
+            }
         }
 
         public GetSituacaoResponse ExecuteGetSituacao()

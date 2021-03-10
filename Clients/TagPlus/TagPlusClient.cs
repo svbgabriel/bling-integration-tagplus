@@ -18,11 +18,12 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
     class TagPlusClient
     {
         private readonly string AccessToken;
-        private readonly string ApiUrl = "https://api.tagplus.com.br";
+        private readonly string ApiUrl;
 
-        public TagPlusClient(string accessToken)
+        public TagPlusClient(string accessToken, string apiUrl)
         {
             AccessToken = accessToken;
+            ApiUrl = apiUrl;
         }
 
         public GetPedidosResponse PostPedidos(PedidoBody body)

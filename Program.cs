@@ -8,9 +8,8 @@ using BlingIntegrationTagplus.Clients.TagPlus.Models.FormasPagamento;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.TiposContatos;
 using BlingIntegrationTagplus.Exceptions;
+using BlingIntegrationTagplus.Models;
 using BlingIntegrationTagplus.Utils;
-using dotenv.net;
-using dotenv.net.Utilities;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -23,7 +22,7 @@ namespace BlingIntegrationTagplus
     class Program
     {
 
-        protected Program() {}
+        protected Program() { }
 
         static void Main()
         {
@@ -37,37 +36,16 @@ namespace BlingIntegrationTagplus
             // Define a cor de erro
             ConsoleColor errorColor = ConsoleColor.Red;
 
-            // Carrega o arquivo de configuração
-            string blingApiKey = "";
-            string blingInitialDate = "";
-            string tagplusToken = "";
-            string blingOrderNum = "";
+            // Carrega as configurações
+            Config config = null;
             try
             {
-                DotEnv.Config();
-                var envReader = new EnvReader();
-                // Carrega a API KEY do Bling
-                blingApiKey = envReader.GetStringValue("BLING_API_KEY");
-                // Carrega a data inicial do Bling
-                blingInitialDate = envReader.GetStringValue("BLING_INITIAL_DATE");
-                // Carrega o Token do Tagplus
-                tagplusToken = envReader.GetStringValue("TAGPLUS_TOKEN");
-                // Carrega o número de pedido especifico
-                envReader.TryGetStringValue("BLING_ORDER_NUM", out blingOrderNum);
+                config = ConfigLoader.LoadConfig();
             }
-            catch (FileNotFoundException)
+            catch (ConfigException e)
             {
                 Console.ForegroundColor = errorColor;
-                Console.WriteLine($"O arquivo .env não foi encontrado");
-                Console.WriteLine("Aperte Enter para fechar");
-                Console.ReadLine();
-                Console.ResetColor();
-                Environment.Exit(-1);
-            }
-            catch (Exception e)
-            {
-                Console.ForegroundColor = errorColor;
-                Console.WriteLine($"Erro: {e.Message}");
+                Console.WriteLine(e.Message);
                 Console.WriteLine("Aperte Enter para fechar");
                 Console.ReadLine();
                 Console.ResetColor();
@@ -83,7 +61,7 @@ namespace BlingIntegrationTagplus
             Log.Information("Iniciando o processo");
 
             // Verifica a data inicial
-            var initialDate = DateTime.Parse(blingInitialDate);
+            var initialDate = DateTime.Parse(config.BlingInitialDate);
             if (initialDate.CompareTo(DateTime.Now) > 0)
             {
                 Console.WriteLine("A data inicial informada é maior que a data atual. O processo não será executado");
@@ -95,7 +73,7 @@ namespace BlingIntegrationTagplus
             }
 
             // Inicializa o cliente do Bling
-            var blingClient = new BlingClient(blingApiKey);
+            var blingClient = new BlingClient(config.BlingApiKey, config.BlingApiUrl);
 
             // Encontra as situações
             GetSituacaoResponse situacoes = null;
@@ -117,7 +95,7 @@ namespace BlingIntegrationTagplus
             var situacaoEmAberto = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Em aberto")).Situacao.Id;
             var situacaoEmAndamento = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Em andamento")).Situacao.Id;
 
-            TagPlusClient tagPlusClient = new TagPlusClient(tagplusToken);
+            var tagPlusClient = new TagPlusClient(config.TagplusToken, config.TagplusApiUrl);
 
             // Encontra os tipos de contato
             IList<GetTiposContatosResponse> tiposContato = null;
@@ -169,15 +147,15 @@ namespace BlingIntegrationTagplus
                     .Build();
 
                 // Verifica se somente um pedido será importado
-                if (string.IsNullOrWhiteSpace(blingOrderNum))
+                if (string.IsNullOrWhiteSpace(config.BlingOrderNum))
                 {
                     pedidos = blingClient.ExecuteGetOrder(filter);
                 }
                 else
                 {
-                    Console.WriteLine($"Procurando somente pelo pedido {blingOrderNum} no Bling");
-                    int orderNum = int.Parse(blingOrderNum);
-                    pedidos = blingClient.ExecuteGetOrder(orderNum);                    
+                    Console.WriteLine($"Procurando somente pelo pedido {config.BlingOrderNum} no Bling");
+                    int orderNum = int.Parse(config.BlingOrderNum);
+                    pedidos = blingClient.ExecuteGetOrder(orderNum);
                 }
             }
             catch (BlingException e)
@@ -191,7 +169,7 @@ namespace BlingIntegrationTagplus
                 Environment.Exit(-1);
             }
 
-            if (string.IsNullOrWhiteSpace(blingOrderNum))
+            if (string.IsNullOrWhiteSpace(config.BlingOrderNum))
             {
                 // Contorno para pedidos do Íntegra
                 List<PedidoItem> pedidosIntegra = new List<PedidoItem>();
