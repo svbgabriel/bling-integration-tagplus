@@ -26,15 +26,18 @@ namespace BlingIntegrationTagplus
 
         static void Main()
         {
-            Console.WriteLine("############################################");
-            Console.WriteLine("## Bem vindo a integração Bling - Tagplus ##");
-            Console.WriteLine("############################################");
+            // Inicializa o logger
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.File($"logs{Path.AltDirectorySeparatorChar}integration-{DateTime.Now:yyyyMMddHHmmss}.log")
+                .WriteTo.Console()
+                .CreateLogger();
 
-            Console.WriteLine();
-            Console.WriteLine("Preparando...");
+            Log.Information("############################################");
+            Log.Information("## Bem vindo a integração Bling - Tagplus ##");
+            Log.Information("############################################");
 
-            // Define a cor de erro
-            ConsoleColor errorColor = ConsoleColor.Red;
+            Log.Information("Carregando as configurações...");          
 
             // Carrega as configurações
             Config config = null;
@@ -44,28 +47,21 @@ namespace BlingIntegrationTagplus
             }
             catch (ConfigException e)
             {
-                Console.ForegroundColor = errorColor;
-                Console.WriteLine(e.Message);
-                Console.WriteLine("Aperte Enter para fechar");
+                Log.Error(e.Message);
+                Log.Information("Aperte Enter para fechar");
                 Console.ReadLine();
-                Console.ResetColor();
+                Log.CloseAndFlush();
                 Environment.Exit(-1);
             }
-
-            // Inicializa o logger
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .WriteTo.File($"logs{Path.AltDirectorySeparatorChar}integration-{DateTime.Now:yyyyMMddHHmmss}.log")
-                .CreateLogger();
-
+            
             Log.Information("Iniciando o processo");
 
             // Verifica a data inicial
             var initialDate = DateTime.Parse(config.BlingInitialDate);
             if (initialDate.CompareTo(DateTime.Now) > 0)
             {
-                Console.WriteLine("A data inicial informada é maior que a data atual. O processo não será executado");
-                Console.WriteLine("Aperte Enter para fechar");
+                Log.Information("A data inicial informada é maior que a data atual. O processo não será executado");
+                Log.Information("Aperte Enter para fechar");
                 Console.ReadLine();
                 Log.Information("Processo finalizado");
                 Log.CloseAndFlush();
@@ -83,12 +79,11 @@ namespace BlingIntegrationTagplus
             }
             catch (BlingException e)
             {
-                Console.ForegroundColor = errorColor;
                 Log.Error($"Não foi possível recuperar as situações: {e.Message}");
-                Console.WriteLine($"Não foi possível recuperar as situações: {e.Message}");
-                Console.WriteLine("Aperte Enter para fechar");
+                Log.Information("Aperte Enter para fechar");
                 Console.ReadLine();
-                Console.ResetColor();
+                Log.Information("Encerrando");
+                Log.CloseAndFlush();
                 Environment.Exit(-1);
             }
             var situacaoImportado = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Importado no TagPlus")).Situacao.Id;
@@ -105,12 +100,11 @@ namespace BlingIntegrationTagplus
             }
             catch (TagPlusException e)
             {
-                Console.ForegroundColor = errorColor;
                 Log.Error($"Não foi possível recuperar os tipos de contato: {e.Message}");
-                Console.WriteLine($"Não foi possível recuperar os tipos de contato: {e.Message}");
-                Console.WriteLine("Aperte Enter para fechar");
+                Log.Information("Aperte Enter para fechar");
                 Console.ReadLine();
-                Console.ResetColor();
+                Log.Information("Encerrando");
+                Log.CloseAndFlush();
                 Environment.Exit(-1);
             }
             var emailContato = tiposContato.First(contato => contato.Descricao.Equals("Email")).Id;
@@ -125,18 +119,16 @@ namespace BlingIntegrationTagplus
             }
             catch (TagPlusException e)
             {
-                Console.ForegroundColor = errorColor;
                 Log.Error($"Não foi possível recuperar as formas de pagamento: {e.Message}");
-                Console.WriteLine($"Não foi possível recuperar as formas de pagamento: {e.Message}");
-                Console.WriteLine("Aperte Enter para fechar");
+                Log.Information("Aperte Enter para fechar");
                 Console.ReadLine();
-                Console.ResetColor();
+                Log.Information("Encerrando");
+                Log.CloseAndFlush();
                 Environment.Exit(-1);
             }
 
             // Recupera os pedidos do Bling
-            Console.WriteLine();
-            Console.WriteLine("Procurando pedidos no Bling...");
+            Log.Information("Procurando pedidos no Bling...");
 
             List<PedidoItem> pedidos = null;
             try
@@ -153,19 +145,18 @@ namespace BlingIntegrationTagplus
                 }
                 else
                 {
-                    Console.WriteLine($"Procurando somente pelo pedido {config.BlingOrderNum} no Bling");
+                    Log.Information($"Procurando somente pelo pedido {config.BlingOrderNum} no Bling");
                     int orderNum = int.Parse(config.BlingOrderNum);
                     pedidos = blingClient.ExecuteGetOrder(orderNum);
                 }
             }
             catch (BlingException e)
             {
-                Console.ForegroundColor = errorColor;
                 Log.Error($"Não foi possível recuperar os pedidos do Bling - {e.Message}");
-                Console.WriteLine($"Não foi possível recuperar os pedidos do Bling - {e.Message}");
-                Console.WriteLine("Aperte Enter para fechar");
+                Log.Information("Aperte Enter para fechar");
                 Console.ReadLine();
-                Console.ResetColor();
+                Log.Information("Encerrando");
+                Log.CloseAndFlush();
                 Environment.Exit(-1);
             }
 
@@ -185,11 +176,8 @@ namespace BlingIntegrationTagplus
                 }
                 catch (BlingException e)
                 {
-                    Console.ForegroundColor = errorColor;
                     Log.Error($"Não foi possível recuperar os pedidos do Íntegra no Bling - {e.Message}");
-                    Console.WriteLine($"Não foi possível recuperar os pedidos do Íntegra no Bling - {e.Message}");
-                    Console.WriteLine("Aperte Enter para continuar");
-                    Console.ResetColor();
+                    Log.Information("Aperte Enter para continuar");
                     Console.ReadLine();
                 }
 
@@ -200,21 +188,20 @@ namespace BlingIntegrationTagplus
             // Verifica se existem pedidos
             if (pedidos == null || pedidos.Count == 0)
             {
-                Console.WriteLine("Não foram encontrados pedidos no Bling");
+                Log.Information("Não foram encontrados pedidos no Bling");
                 Log.Information("Processo finalizado");
-                Console.WriteLine("Aperte Enter para fechar");
+                Log.Information("Aperte Enter para fechar");
                 Console.ReadLine();
                 Log.CloseAndFlush();
                 Environment.Exit(0);
             }
 
             // Envia os pedidos para o TagPlus
-            Console.WriteLine($"Foram encontrados {pedidos.Count} pedido(s)");
+            Log.Information($"Foram encontrados {pedidos.Count} pedido(s)");
             foreach (PedidoItem pedido in pedidos)
             {
-                Console.WriteLine();
-                Console.WriteLine("--------------------------------------------");
-                Console.WriteLine($"Tratando o Pedido {pedido.Pedido.Numero}");
+                Log.Information("--------------------------------------------");
+                Log.Information($"Tratando o Pedido {pedido.Pedido.Numero}");
                 // Tenta recupera o Cliente de várias maneiras
                 int clienteId = 0;
                 if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Cnpj))
@@ -236,7 +223,7 @@ namespace BlingIntegrationTagplus
                 // Cria se não existir
                 if (clienteId == 0)
                 {
-                    Console.WriteLine($"Cliente {pedido.Pedido.Cliente.Nome} não foi encontrado, cadastrando...");
+                    Log.Information($"Cliente {pedido.Pedido.Cliente.Nome} não foi encontrado, cadastrando...");
                     ClienteBody cliente = new ClienteBody();
                     cliente.RazaoSocial = pedido.Pedido.Cliente.Nome;
                     cliente.Ativo = true;
@@ -334,12 +321,8 @@ namespace BlingIntegrationTagplus
                     }
                     catch (TagPlusException e)
                     {
-                        Console.ForegroundColor = errorColor;
                         Log.Error($"Não foi possível cadastrar o cliente: {e.Message}");
-                        Console.WriteLine($"Não foi possível cadastrar o cliente: {e.Message}");
-                        Console.WriteLine("--------------------------------------------");
-                        Console.WriteLine();
-                        Console.ResetColor();
+                        Log.Information("--------------------------------------------");
                         continue;
                     }
                 }
@@ -400,45 +383,37 @@ namespace BlingIntegrationTagplus
                 try
                 {
                     Clients.TagPlus.Models.Pedidos.GetPedidosResponse response = tagPlusClient.PostPedidos(body);
-                    Console.WriteLine($"Pedido cadastrado no TagPlus com o ID: {response.Id}");
+                    Log.Information($"Pedido cadastrado no TagPlus com o ID: {response.Id}");
                 }
                 catch (TagPlusException e)
                 {
-                    Console.ForegroundColor = errorColor;
                     Log.Error($"Não foi possível cadastrar o pedido: {e.Message}");
-                    Console.WriteLine($"Não foi possível cadastrar o pedido: {e.Message}");
-                    Console.WriteLine("--------------------------------------------");
-                    Console.WriteLine();
-                    Console.ResetColor();
+                    Log.Information("--------------------------------------------");
                     continue;
                 }
 
                 // Atualiza a situação no Bling
-                Console.WriteLine("Atualizando a situação no Bling");
+                Log.Information("Atualizando a situação no Bling");
                 try
                 {
                     var pedidoUpdated = blingClient.ExecuteUpdateOrder(pedido.Pedido.Numero, situacaoImportado);
-                    Console.WriteLine($"O pedido {pedido.Pedido.Numero} foi atualizado");
+                    Log.Information($"O pedido {pedido.Pedido.Numero} foi atualizado");
                 }
                 catch (BlingException e)
                 {
-                    Console.ForegroundColor = errorColor;
                     Log.Error($"Não foi possível atualizar o pedido {pedido.Pedido.Numero} no Bling: {e.Message}");
-                    Console.WriteLine($"Não foi possível atualizar o pedido {pedido.Pedido.Numero} no Bling: {e.Message}");
-                    Console.WriteLine("Aperte Enter para fechar");
-                    Console.ResetColor();
+                    Log.Error($"O pedido {pedido.Pedido.Numero} deve ser atualizado manualmente no Bling");
+                    Log.Information("Aperte Enter para continuar");
                     Console.ReadLine();
                 }
 
-                Console.WriteLine("--------------------------------------------");
-                Console.WriteLine();
+                Log.Information("--------------------------------------------");
             }
 
             Log.Information("Processo finalizado");
-            Log.CloseAndFlush();
-            Console.WriteLine("Processo finalizado");
-            Console.WriteLine("Aperte Enter para fechar");
+            Log.Information("Aperte Enter para fechar");
             Console.ReadLine();
+            Log.CloseAndFlush();
         }
     }
 }
