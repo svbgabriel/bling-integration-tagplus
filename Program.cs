@@ -1,5 +1,4 @@
 using BlingIntegrationTagplus.Clients.Bling;
-using BlingIntegrationTagplus.Clients.Bling.Filters;
 using BlingIntegrationTagplus.Clients.Bling.Models.Pedidos;
 using BlingIntegrationTagplus.Clients.TagPlus;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.FormasPagamento;
@@ -73,6 +72,7 @@ namespace BlingIntegrationTagplus
             var clieteService = new ClienteService(tagPlusClient);
             var tipoContatoService = new TipoContatoService(tagPlusClient);
             var SituacaoService = new SituacaoService(blingClient);
+            var blingPedidoService = new BlingPedidoService(blingClient, config);
 
             // Encontra as situações
             Dictionary<string, string> situacoes = null;
@@ -89,9 +89,7 @@ namespace BlingIntegrationTagplus
                 Log.CloseAndFlush();
                 Environment.Exit(-1);
             }
-            situacoes.TryGetValue("IMPORTADO", out string situacaoImportado);
-            situacoes.TryGetValue("ABERTO", out string situacaoEmAberto);
-            situacoes.TryGetValue("ANDAMENTO", out string situacaoEmAndamento);
+            situacoes.TryGetValue("IMPORTADO", out string situacaoImportado);            
 
             // Encontra os tipos de contato
             Dictionary<string, int> tiposContato = null;
@@ -128,63 +126,10 @@ namespace BlingIntegrationTagplus
             // Recupera os pedidos do Bling
             Log.Information("Procurando pedidos no Bling...");
 
-            List<PedidoItem> pedidos = null;
-            try
-            {
-                BuildOrdersFilter filters = new BuildOrdersFilter();
-                string filter = filters.AddDateFilter(initialDate, DateTime.Now)
-                    .AddSituation(situacaoEmAberto)
-                    .Build();
-
-                // Verifica se somente um pedido será importado
-                if (string.IsNullOrWhiteSpace(config.BlingOrderNum))
-                {
-                    pedidos = blingClient.ExecuteGetOrder(filter);
-                }
-                else
-                {
-                    Log.Information($"Procurando somente pelo pedido {config.BlingOrderNum} no Bling");
-                    int orderNum = int.Parse(config.BlingOrderNum);
-                    pedidos = blingClient.ExecuteGetOrder(orderNum);
-                }
-            }
-            catch (BlingException e)
-            {
-                Log.Error($"Não foi possível recuperar os pedidos do Bling - {e.Message}");
-                Log.Information("Aperte Enter para fechar");
-                Console.ReadLine();
-                Log.Information("Encerrando");
-                Log.CloseAndFlush();
-                Environment.Exit(-1);
-            }
-
-            if (string.IsNullOrWhiteSpace(config.BlingOrderNum))
-            {
-                // Contorno para pedidos do Íntegra
-                List<PedidoItem> pedidosIntegra = new List<PedidoItem>();
-                try
-                {
-                    BuildOrdersFilter filters = new BuildOrdersFilter();
-                    string filter = filters.AddDateFilter(initialDate, DateTime.Now)
-                        .AddSituation(situacaoEmAndamento)
-                        .Build();
-                    List<PedidoItem> pedidosIntegraTotal = blingClient.ExecuteGetOrder(filter);
-                    // Filtra os pedidos para somente os do canal Íntegra
-                    pedidosIntegra = pedidosIntegraTotal.Where(pedido => pedido.Pedido.TipoIntegracao.Equals("IntegraCommerce")).ToList();
-                }
-                catch (BlingException e)
-                {
-                    Log.Error($"Não foi possível recuperar os pedidos do Íntegra no Bling - {e.Message}");
-                    Log.Information("Aperte Enter para continuar");
-                    Console.ReadLine();
-                }
-
-                // Junta as listas de pedidos
-                pedidos.AddRange(pedidosIntegra);
-            }
+            List<PedidoItem> pedidos = blingPedidoService.GetPedidos(situacoes, initialDate);
 
             // Verifica se existem pedidos
-            if (pedidos == null || pedidos.Count == 0)
+            if (pedidos.Count == 0)
             {
                 Log.Information("Não foram encontrados pedidos no Bling");
                 Log.Information("Processo finalizado");
