@@ -1,7 +1,6 @@
 using BlingIntegrationTagplus.Clients.Bling;
 using BlingIntegrationTagplus.Clients.Bling.Filters;
 using BlingIntegrationTagplus.Clients.Bling.Models.Pedidos;
-using BlingIntegrationTagplus.Clients.Bling.Models.Situacao;
 using BlingIntegrationTagplus.Clients.TagPlus;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.FormasPagamento;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos;
@@ -35,7 +34,7 @@ namespace BlingIntegrationTagplus
             Log.Information("## Bem vindo a integração Bling - Tagplus ##");
             Log.Information("############################################");
 
-            Log.Information("Carregando as configurações...");          
+            Log.Information("Carregando as configurações...");
 
             // Carrega as configurações
             Config config = null;
@@ -51,7 +50,7 @@ namespace BlingIntegrationTagplus
                 Log.CloseAndFlush();
                 Environment.Exit(-1);
             }
-            
+
             Log.Information("Iniciando o processo");
 
             // Verifica a data inicial
@@ -66,33 +65,33 @@ namespace BlingIntegrationTagplus
                 Environment.Exit(0);
             }
 
-            // Inicializa o cliente do Bling
+            // Inicializa os clientes
             var blingClient = new BlingClient(config.BlingApiKey, config.BlingApiUrl);
+            var tagPlusClient = new TagPlusClient(config.TagplusToken, config.TagplusApiUrl);
+
+            // Inicializa os Services
+            var clieteService = new ClienteService(tagPlusClient);
+            var tipoContatoService = new TipoContatoService(tagPlusClient);
+            var SituacaoService = new SituacaoService(blingClient);
 
             // Encontra as situações
-            GetSituacaoResponse situacoes = null;
+            Dictionary<string, string> situacoes = null;
             try
             {
-                situacoes = blingClient.ExecuteGetSituacao();
+                situacoes = SituacaoService.GetSituacoes();
             }
-            catch (BlingException e)
+            catch (SituacaoException e)
             {
-                Log.Error($"Não foi possível recuperar as situações: {e.Message}");
+                Log.Error(e.Message);
                 Log.Information("Aperte Enter para fechar");
                 Console.ReadLine();
                 Log.Information("Encerrando");
                 Log.CloseAndFlush();
                 Environment.Exit(-1);
             }
-            var situacaoImportado = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Importado no TagPlus")).Situacao.Id;
-            var situacaoEmAberto = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Em aberto")).Situacao.Id;
-            var situacaoEmAndamento = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Em andamento")).Situacao.Id;
-
-            var tagPlusClient = new TagPlusClient(config.TagplusToken, config.TagplusApiUrl);
-
-            // Inicializa os Services
-            var clieteService = new ClienteService(tagPlusClient);
-            var tipoContatoService = new TipoContatoService(tagPlusClient);
+            situacoes.TryGetValue("IMPORTADO", out string situacaoImportado);
+            situacoes.TryGetValue("ABERTO", out string situacaoEmAberto);
+            situacoes.TryGetValue("ANDAMENTO", out string situacaoEmAndamento);
 
             // Encontra os tipos de contato
             Dictionary<string, int> tiposContato = null;
@@ -108,7 +107,7 @@ namespace BlingIntegrationTagplus
                 Log.Information("Encerrando");
                 Log.CloseAndFlush();
                 Environment.Exit(-1);
-            }           
+            }
 
             // Encontra as formas de pagamento
             IList<GetFormasPagamentoResponse> formasPagamento = null;
@@ -193,7 +192,7 @@ namespace BlingIntegrationTagplus
                 Console.ReadLine();
                 Log.CloseAndFlush();
                 Environment.Exit(0);
-            }            
+            }
 
             // Envia os pedidos para o TagPlus
             Log.Information($"Foram encontrados {pedidos.Count} pedido(s)");
@@ -208,7 +207,7 @@ namespace BlingIntegrationTagplus
                 // Cria se não existir
                 if (clienteId == 0)
                 {
-                    Log.Information($"Cliente {pedido.Pedido.Cliente.Nome} não foi encontrado, cadastrando...");                    
+                    Log.Information($"Cliente {pedido.Pedido.Cliente.Nome} não foi encontrado, cadastrando...");
 
                     // Envia o novo cliente
                     try
