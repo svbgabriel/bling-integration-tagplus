@@ -73,6 +73,7 @@ namespace BlingIntegrationTagplus
             var tipoContatoService = new TipoContatoService(tagPlusClient);
             var SituacaoService = new SituacaoService(blingClient);
             var blingPedidoService = new BlingPedidoService(blingClient, config);
+            var produtoService = new ProdutoService(tagPlusClient);
 
             // Encontra as situações
             Dictionary<string, string> situacoes = null;
@@ -89,7 +90,7 @@ namespace BlingIntegrationTagplus
                 Log.CloseAndFlush();
                 Environment.Exit(-1);
             }
-            situacoes.TryGetValue("IMPORTADO", out string situacaoImportado);            
+            situacoes.TryGetValue("IMPORTADO", out string situacaoImportado);
 
             // Encontra os tipos de contato
             Dictionary<string, int> tiposContato = null;
@@ -168,20 +169,18 @@ namespace BlingIntegrationTagplus
                 }
 
                 // Recupera os Itens
-                IList<Clients.TagPlus.Models.Pedidos.Item> itens = new List<Clients.TagPlus.Models.Pedidos.Item>();
-                for (int i = 0; i < pedido.Pedido.Itens.Count; i++)
+                IList<Clients.TagPlus.Models.Pedidos.Item> itens = null;
+                try
                 {
-                    Clients.Bling.Models.Pedidos.Item blingItem = pedido.Pedido.Itens[i].Item;
-                    int produtoServico = tagPlusClient.GetProduto(blingItem.Codigo);
-                    Clients.TagPlus.Models.Pedidos.Item tagPlusItem = new Clients.TagPlus.Models.Pedidos.Item
-                    {
-                        NumItem = i,
-                        ProdutoServico = produtoServico,
-                        Qtd = Convert.ToInt32(float.Parse(blingItem.Quantidade, CultureInfo.InvariantCulture.NumberFormat)),
-                        ValorUnitario = float.Parse(blingItem.Valorunidade, CultureInfo.InvariantCulture.NumberFormat),
-                        ValorDesconto = float.Parse(blingItem.DescontoItem, CultureInfo.InvariantCulture.NumberFormat)
-                    };
-                    itens.Add(tagPlusItem);
+                    itens = produtoService.GetListaProdutos(pedido);
+                }
+                catch (ProdutoException e)
+                {
+                    Log.Error(e.Message);
+                    Log.Information("Aperte Enter para continuar");
+                    Log.Information("--------------------------------------------");
+                    Console.ReadLine();
+                    continue;
                 }
 
                 // Recupera as faturas
@@ -236,7 +235,7 @@ namespace BlingIntegrationTagplus
                 Log.Information("Atualizando a situação no Bling");
                 try
                 {
-                    var pedidoUpdated = blingClient.ExecuteUpdateOrder(pedido.Pedido.Numero, situacaoImportado);
+                    blingClient.ExecuteUpdateOrder(pedido.Pedido.Numero, situacaoImportado);
                     Log.Information($"O pedido {pedido.Pedido.Numero} foi atualizado");
                 }
                 catch (BlingException e)
