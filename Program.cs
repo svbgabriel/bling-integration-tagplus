@@ -11,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 
 namespace BlingIntegrationTagplus
 {
@@ -74,6 +73,7 @@ namespace BlingIntegrationTagplus
             var SituacaoService = new SituacaoService(blingClient);
             var blingPedidoService = new BlingPedidoService(blingClient, config);
             var produtoService = new ProdutoService(tagPlusClient);
+            var faturaService = new FaturaService();
 
             // Encontra as situações
             Dictionary<string, string> situacoes = null;
@@ -169,7 +169,7 @@ namespace BlingIntegrationTagplus
                 }
 
                 // Recupera os Itens
-                IList<Clients.TagPlus.Models.Pedidos.Item> itens = null;
+                IList<Clients.TagPlus.Models.Pedidos.Item> itens;
                 try
                 {
                     itens = produtoService.GetListaProdutos(pedido);
@@ -184,26 +184,7 @@ namespace BlingIntegrationTagplus
                 }
 
                 // Recupera as faturas
-                IList<Fatura> faturas = new List<Fatura>();
-                Fatura fatura = new Fatura
-                {
-                    Parcelas = new List<Clients.TagPlus.Models.Pedidos.Parcela>()
-                };
-                foreach (ParcelaItem parcelaWrapper in pedido.Pedido.Parcelas)
-                {
-                    Clients.Bling.Models.Pedidos.Parcela parcela = parcelaWrapper.Parcela;
-                    int formaPagamento = formasPagamento.First(forma => forma.Descricao.Equals(parcela.FormaPagamento.Descricao)).Id;
-                    // Converte a data de vencimento
-                    string date = DateTime.Parse(parcela.DataVencimento).ToString("yyyy-MM-dd");
-                    Clients.TagPlus.Models.Pedidos.Parcela parcelaTagPlus = new Clients.TagPlus.Models.Pedidos.Parcela
-                    {
-                        ValorParcela = float.Parse(parcela.Valor, CultureInfo.InvariantCulture.NumberFormat),
-                        DataVencimento = date
-                    };
-                    fatura.Parcelas.Add(parcelaTagPlus);
-                    fatura.FormaPagamento = formaPagamento;
-                }
-                faturas.Add(fatura);
+                IList<Fatura> faturas = faturaService.ConstructFatura(pedido, formasPagamento);
 
                 // Cria o corpo do pedido
                 PedidoBody body = new PedidoBody
