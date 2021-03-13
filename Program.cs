@@ -2,11 +2,12 @@ using BlingIntegrationTagplus.Clients.Bling;
 using BlingIntegrationTagplus.Clients.Bling.Models.Pedidos;
 using BlingIntegrationTagplus.Clients.TagPlus;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.FormasPagamento;
+using BlingIntegrationTagplus.Clients.TagPlus.Models.Fornecedores;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos;
-using BlingIntegrationTagplus.Clients.TagPlus.Models.PedidosCompra;
 using BlingIntegrationTagplus.Exceptions;
 using BlingIntegrationTagplus.Models;
 using BlingIntegrationTagplus.Services;
+using BlingIntegrationTagplus.Utils;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace BlingIntegrationTagplus
             // Inicializa o logger
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
-                .WriteTo.File($"logs{Path.AltDirectorySeparatorChar}integration-{DateTime.Now:yyyyMMddHHmmss}.log")
+                .WriteTo.File($"logs{Path.AltDirectorySeparatorChar}integration-{DateTime.Now:yyyyMMdd}.log")
                 .WriteTo.Console()
                 .CreateLogger();
 
@@ -125,6 +126,40 @@ namespace BlingIntegrationTagplus
                 Environment.Exit(-1);
             }
 
+            // Encontra os fornecedores
+            IList<GetFornecedoresResponse> fornecedores = null;
+            try
+            {
+                fornecedores = tagPlusClient.GetFornecedores();
+            }
+            catch (TagPlusException e)
+            {
+                Log.Error($"Não foi possível recuperar os fornecedores: {e.Message}");
+                Log.Information("Aperte Enter para fechar");
+                Console.ReadLine();
+                Log.Information("Encerrando");
+                Log.CloseAndFlush();
+                Environment.Exit(-1);
+            }
+
+            // Recupera o dicionário de fornecedores
+            Dictionary<string, string> dicFornecedores = null;
+            try
+            {
+                dicFornecedores = FileUtils.ReadFornecedoresFile();
+            }
+            catch (UtilsException e)
+            {
+                Log.Error($"Não foi possível recuperar os fornecedores do arquivo: {e.Message}");
+                Log.Information("Aperte Enter para fechar");
+                Console.ReadLine();
+                Log.Information("Encerrando");
+                Log.CloseAndFlush();
+                Environment.Exit(-1);
+            }
+
+            Log.Information("Configurações carregadas");
+
             // Recupera os pedidos do Bling
             Log.Information("Procurando pedidos no Bling...");
 
@@ -164,53 +199,36 @@ namespace BlingIntegrationTagplus
                     catch (ClienteException e)
                     {
                         Log.Error(e.Message);
-                        Log.Information("--------------------------------------------");
                         continue;
                     }
                 }
 
-                // Recupera os Itens
-                IList<Clients.TagPlus.Models.Pedidos.Item> itens;
+                // Recupera os itens e coloca na lista intermediária
+                List<Produto> produtos;
                 try
                 {
-                    itens = produtoService.GetListaProdutos(pedido);
+                    produtos = produtoService.GetListaProdutos(pedido);
                 }
                 catch (ProdutoException e)
                 {
                     Log.Error(e.Message);
                     Log.Information("Aperte Enter para continuar");
-                    Log.Information("--------------------------------------------");
                     Console.ReadLine();
                     continue;
                 }
 
-                // Recupera os Itens para os pedidos e pedidos de compra
-                IList<Clients.TagPlus.Models.PedidosCompra.Item> itensCompra = new List<Clients.TagPlus.Models.PedidosCompra.Item>();
-                for (int i = 0; i < pedido.Pedido.Itens.Count; i++)
-                {
-                    Clients.Bling.Models.Pedidos.Item blingItem = pedido.Pedido.Itens[i].Item;
-                    int produtoServico = tagPlusClient.GetProduto(blingItem.Codigo);                   
-                    // Pedido de Compra
-                    Clients.TagPlus.Models.PedidosCompra.Item tagPlusItemCompra = new Clients.TagPlus.Models.PedidosCompra.Item
-                    {
-                        NumItem = i,
-                        ProdutoServico = produtoServico,
-                        Qtd = Convert.ToInt32(float.Parse(blingItem.Quantidade, CultureInfo.InvariantCulture.NumberFormat)),
-                        ValorUnitario = float.Parse(blingItem.Valorunidade, CultureInfo.InvariantCulture.NumberFormat),
-                        ValorDesconto = float.Parse(blingItem.DescontoItem, CultureInfo.InvariantCulture.NumberFormat)
-                    };
-                    itensCompra.Add(tagPlusItemCompra);
-                }                
+                // Monta a lista de pedidos
+                var listaPedidos = produtoService.GetListaPedidos(produtos);
 
                 // Recupera as faturas
-                IList<Fatura> faturas = faturaService.ConstructFatura(pedido, formasPagamento);
+                var faturas = faturaService.ConstructFatura(pedido, formasPagamento);
 
                 // Cria o corpo do pedido
                 PedidoBody body = new PedidoBody
                 {
                     CodigoExterno = pedido.Pedido.Numero,
                     Cliente = clienteId,
-                    Itens = itens,
+                    Itens = listaPedidos,
                     Faturas = faturas,
                     ValorFrete = float.Parse(pedido.Pedido.Valorfrete, CultureInfo.InvariantCulture.NumberFormat),
                     Observacoes = $"Pedido: {pedido.Pedido.Numero}\n" +
@@ -228,28 +246,32 @@ namespace BlingIntegrationTagplus
                 catch (TagPlusException e)
                 {
                     Log.Error($"Não foi possível cadastrar o pedido: {e.Message}");
-                    Log.Information("--------------------------------------------");
                     continue;
                 }
 
-                // Cria o corpo do pedido de compra
-                PedidoCompraBody pedidoCompraBody = new PedidoCompraBody
-                {
-                    Itens = itensCompra,
-                    Observacoes = $"Número do Pedido Tagplus: {response.Numero}"
-                };
+                // Monta a lista de corpo do pedido de compra
+                var itensCompra = produtoService.GetListaPedidosCompra(produtos, response.Numero, fornecedores, dicFornecedores);
 
-                // Envia o novo pedido de compra
-                try
+                // Envia os novos pedidos de compra
+                bool error = false;
+                foreach (var pedidoCompraBody in itensCompra)
                 {
-                    var responsePedidoCompra = tagPlusClient.PostPedidoCompra(pedidoCompraBody);
-                    Log.Information($"Pedido de compra cadastrado no TagPlus com o Número: {responsePedidoCompra.Numero}");
+                    try
+                    {
+                        var responsePedidoCompra = tagPlusClient.PostPedidoCompra(pedidoCompraBody);
+                        Log.Information($"Pedido de compra cadastrado no TagPlus com o Número: {responsePedidoCompra.Numero}");
+                    }
+                    catch (ProdutoException e)
+                    {
+                        Log.Error($"Não foi possível cadastrar o pedido de compra: {e.Message}");
+                        error = true;
+                        break;
+                    }
                 }
-                catch (TagPlusException e)
+
+                if (error)
                 {
-                    Log.Error($"Não foi possível cadastrar o pedido de compra: {e.Message}");
-                    Log.Information($"Não foi possível cadastrar o pedido compra: {e.Message}");
-                    Log.Information("--------------------------------------------");
+                    Log.Error("O pedido terá que ser cadastrado manualmente");
                     continue;
                 }
 
@@ -266,11 +288,10 @@ namespace BlingIntegrationTagplus
                     Log.Error($"O pedido {pedido.Pedido.Numero} deve ser atualizado manualmente no Bling");
                     Log.Information("Aperte Enter para continuar");
                     Console.ReadLine();
-                }
-
-                Log.Information("--------------------------------------------");
+                }                
             }
 
+            Log.Information("--------------------------------------------");
             Log.Information("Processo finalizado");
             Log.Information("Aperte Enter para fechar");
             Console.ReadLine();

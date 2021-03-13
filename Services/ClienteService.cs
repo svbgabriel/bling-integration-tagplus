@@ -46,9 +46,11 @@ namespace BlingIntegrationTagplus.Services
             tiposContato.TryGetValue("CELULAR", out int celularContato);
             tiposContato.TryGetValue("TELEFONE", out int telefoneContato);
 
-            ClienteBody cliente = new ClienteBody();
-            cliente.RazaoSocial = pedido.Pedido.Cliente.Nome;
-            cliente.Ativo = true;
+            ClienteBody cliente = new ClienteBody
+            {
+                RazaoSocial = pedido.Pedido.Cliente.Nome,
+                Ativo = true
+            };
             if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Cnpj))
             {
                 if (ValidateUtils.IsCpf(pedido.Pedido.Cliente.Cnpj))

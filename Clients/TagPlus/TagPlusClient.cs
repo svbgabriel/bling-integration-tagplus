@@ -1,7 +1,7 @@
 using BlingIntegrationTagplus.Clients.TagPlus.Models;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.Clientes;
-using BlingIntegrationTagplus.Clients.TagPlus.Models.Departamentos;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.FormasPagamento;
+using BlingIntegrationTagplus.Clients.TagPlus.Models.Fornecedores;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.Pedidos;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.PedidosCompra;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.Produtos;
@@ -50,60 +50,6 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             {
                 var pedido = JsonConvert.DeserializeObject<GetPedidosResponse>(response.Content);
                 return pedido;
-            }
-        }
-
-        public IList<GetDepartamentosResponse> GetDepartamentos()
-        {
-            var client = new RestClient(ApiUrl);
-            var request = new RestRequest("departamentos", DataFormat.Json);
-            request.AddHeader("X-Api-Version", "2.0");
-            request.AddHeader("apikey", AccessToken);
-            request.AddHeader("Accept", "application/json");
-            var response = client.Get(request);
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
-                Log.Error("TagPlus - GetDepartamentos() - Erro durante a recuperação de departamentos");
-                Log.Error($"Código {error.ErrorCode} : {error.Message}");
-                throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
-            }
-            else
-            {
-                var departamentos = JsonConvert.DeserializeObject<IList<GetDepartamentosResponse>>(response.Content);
-                return departamentos;
-            }
-        }
-
-        public int GetDepartamento(string nomeDepartamento)
-        {
-            var client = new RestClient(ApiUrl);
-            var request = new RestRequest("departamentos", DataFormat.Json);
-            request.AddHeader("X-Api-Version", "2.0");
-            request.AddHeader("apikey", AccessToken);
-            request.AddQueryParameter("descricao", nomeDepartamento);
-            request.AddHeader("Accept", "application/json");
-            var response = client.Get(request);
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
-                Log.Error("TagPlus - GetDepartamentos() - Erro durante a recuperação de departamentos");
-                Log.Error($"nomeDepartamento: {nomeDepartamento}");
-                Log.Error($"Código {error.ErrorCode} : {error.Message}");
-                throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
-            }
-            else
-            {
-                var departamentos = JsonConvert.DeserializeObject<IList<GetDepartamentosResponse>>(response.Content);
-                // Caso não seja encontrado retorna 0
-                if (departamentos.Count == 0)
-                {
-                    return 0;
-                }
-                int id = departamentos[0].Id;
-                return id;
             }
         }
 
@@ -226,7 +172,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             }
         }
 
-        public int GetProduto(string codigo)
+        public GetProdutosResponse GetProduto(string codigo)
         {
             var client = new RestClient(ApiUrl);
             var request = new RestRequest("produtos", DataFormat.Json);
@@ -247,13 +193,13 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             else
             {
                 var produtos = JsonConvert.DeserializeObject<IList<GetProdutosResponse>>(response.Content);
-                // Caso não seja encontrado retorna 0
+                // Caso não seja encontrado retorna null
                 if (produtos.Count == 0)
                 {
-                    return 0;
+                    return null;
                 }
-                int id = produtos[0].Id;
-                return id;
+
+                return produtos[0];
             }
         }
 
@@ -280,37 +226,6 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             }
         }
 
-        public int GetFormasPagamento(string descricao)
-        {
-            var client = new RestClient(ApiUrl);
-            var request = new RestRequest("formas_pagamento", DataFormat.Json);
-            request.AddHeader("X-Api-Version", "2.0");
-            request.AddHeader("apikey", AccessToken);
-            request.AddQueryParameter("descricao", descricao);
-            request.AddHeader("Accept", "application/json");
-            var response = client.Get(request);
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
-                Log.Error("TagPlus - GetFormasPagamento(string descricao) - Erro durante a recuperação das formas de pagamento");
-                Log.Error($"descricao: {descricao}");
-                Log.Error($"Código {error.ErrorCode} : {error.Message}");
-                throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
-            }
-            else
-            {
-                var formas = JsonConvert.DeserializeObject<IList<GetFormasPagamentoResponse>>(response.Content);
-                // Caso não seja encontrado retorna 0
-                if (formas.Count == 0)
-                {
-                    return 0;
-                }
-                int id = formas[0].Id;
-                return id;
-            }
-        }
-
         public IList<GetTiposContatosResponse> GetTiposContatos()
         {
             var client = new RestClient(ApiUrl);
@@ -331,37 +246,6 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             {
                 var tiposContatos = JsonConvert.DeserializeObject<IList<GetTiposContatosResponse>>(response.Content);
                 return tiposContatos;
-            }
-        }
-
-        public int GetTiposContato(string descricao)
-        {
-            var client = new RestClient(ApiUrl);
-            var request = new RestRequest("tipos_contatos", DataFormat.Json);
-            request.AddHeader("X-Api-Version", "2.0");
-            request.AddHeader("apikey", AccessToken);
-            request.AddQueryParameter("descricao", descricao);
-            request.AddHeader("Accept", "application/json");
-            var response = client.Get(request);
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
-                Log.Error("TagPlus - GetTiposContato(string descricao) - Erro durante a recuperação das tipos de contato");
-                Log.Error($"descricao: {descricao}");
-                Log.Error($"Código {error.ErrorCode} : {error.Message}");
-                throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
-            }
-            else
-            {
-                var tiposContatos = JsonConvert.DeserializeObject<IList<GetTiposContatosResponse>>(response.Content);
-                // Caso não seja encontrado retorna 0
-                if (tiposContatos.Count == 0)
-                {
-                    return 0;
-                }
-                int id = tiposContatos[0].Id;
-                return id;
             }
         }
 
@@ -388,6 +272,29 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             {
                 var pedido = JsonConvert.DeserializeObject<GetPedidoCompraResponse>(response.Content);
                 return pedido;
+            }
+        }
+
+        public IList<GetFornecedoresResponse> GetFornecedores()
+        {
+            var client = new RestClient(ApiUrl);
+            var request = new RestRequest("fornecedores", DataFormat.Json);
+            request.AddHeader("X-Api-Version", "2.0");
+            request.AddHeader("apikey", AccessToken);
+            request.AddHeader("Accept", "application/json");
+            var response = client.Get(request);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
+                Log.Error("TagPlus - GetTiposContatos() - Erro durante a recuperação dos fornecedores");
+                Log.Error($"Código {error.ErrorCode} : {error.Message}");
+                throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
+            }
+            else
+            {
+                var fornecedores = JsonConvert.DeserializeObject<IList<GetFornecedoresResponse>>(response.Content);
+                return fornecedores;
             }
         }
     }
