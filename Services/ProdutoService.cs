@@ -129,7 +129,7 @@ namespace BlingIntegrationTagplus.Services
                 {
                     Itens = itens,
                     Fornecedor = idFornecedor,
-                    Observacoes = $"Número do Pedido Tagplus: {numero}\nEntrega até: ${DateTime.Now.AddDays(7)}"
+                    Observacoes = $"Número do Pedido Tagplus: {numero}\nEntrega até: {DateTime.Now.AddDays(7)}"
                 };
 
                 itensCompra.Add(pedidoCompraBody);
