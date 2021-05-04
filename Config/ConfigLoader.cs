@@ -17,7 +17,7 @@ namespace BlingIntegrationTagplus
             // Carrega o arquivo de configuração
             try
             {
-                DotEnv.Config();
+                DotEnv.Config(filePath: "config.txt");
                 var envReader = new EnvReader();
                 // Carrega a API KEY do Bling
                 string blingApiKey = envReader.GetStringValue("BLING_API_KEY");
@@ -35,7 +35,7 @@ namespace BlingIntegrationTagplus
             }
             catch (FileNotFoundException)
             {
-                throw new ConfigException("O arquivo .env não foi encontrado");
+                throw new ConfigException("O arquivo config.txt não foi encontrado");
             }
             catch (Exception e)
             {

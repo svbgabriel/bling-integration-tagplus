@@ -21,8 +21,8 @@ Um executável para o Windows 64-bits vai estar disponível em bling-integration
 
 ## Para executar
 
-Para executar é necessário preencher o arquivo de configurações, esse arquivo deve ter o nome ".env". O arquivo ".env.example" pode ser usado como base.
-As configurações são do tipo "chave e valor" e estão descritas no arquivo ".env.example".
+Para executar é necessário preencher o arquivo de configurações, esse arquivo deve ter o nome "config.txt". O arquivo "config.txt.example" pode ser usado como base.
+As configurações são do tipo "chave e valor" e estão descritas no arquivo "config.txt.example".
 
 Com a configuração realizada, ele pode ser executado com o comando abaixo:
 

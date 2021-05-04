@@ -432,8 +432,10 @@ $RECYCLE.BIN/
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# Env files
+# Env/Config files
 .env
+config.txt
+fornecedores.txt
 
 # Database files
 *.db
