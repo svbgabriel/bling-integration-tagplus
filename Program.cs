@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 
 namespace BlingIntegrationTagplus
 {
@@ -33,6 +34,10 @@ namespace BlingIntegrationTagplus
             Log.Information("############################################");
             Log.Information("## Bem vindo a integração Bling - Tagplus ##");
             Log.Information("############################################");
+
+            var versao = Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+
+            Log.Information($"Versão: {versao}");
 
             Log.Information("Carregando as configurações...");
 
@@ -72,7 +77,7 @@ namespace BlingIntegrationTagplus
             // Inicializa os Services
             var clieteService = new ClienteService(tagPlusClient);
             var tipoContatoService = new TipoContatoService(tagPlusClient);
-            var SituacaoService = new SituacaoService(blingClient);
+            var situacaoService = new SituacaoService(blingClient);
             var blingPedidoService = new BlingPedidoService(blingClient, config);
             var produtoService = new ProdutoService(tagPlusClient);
             var faturaService = new FaturaService();
@@ -81,7 +86,7 @@ namespace BlingIntegrationTagplus
             Dictionary<string, string> situacoes = null;
             try
             {
-                situacoes = SituacaoService.GetSituacoes();
+                situacoes = situacaoService.GetSituacoes();
             }
             catch (SituacaoException e)
             {
@@ -288,7 +293,7 @@ namespace BlingIntegrationTagplus
                     Log.Error($"O pedido {pedido.Pedido.Numero} deve ser atualizado manualmente no Bling");
                     Log.Information("Aperte Enter para continuar");
                     Console.ReadLine();
-                }                
+                }
             }
 
             Log.Information("--------------------------------------------");
