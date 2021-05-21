@@ -12,38 +12,38 @@ namespace BlingIntegrationTagplus.Services
 {
     class BlingPedidoService
     {
-        private readonly BlingClient blingClient;
-        private readonly Config config;
+        private readonly BlingClient _blingClient;
+        private readonly Config _config;
 
         public BlingPedidoService(BlingClient blingClient, Config config)
         {
-            this.blingClient = blingClient;
-            this.config = config;
+            _blingClient = blingClient;
+            _config = config;
         }
 
         public List<PedidoItem> GetPedidos(Dictionary<string, string> situacoes, DateTime initialDate)
         {
-            situacoes.TryGetValue("ABERTO", out string situacaoEmAberto);
-            situacoes.TryGetValue("ANDAMENTO", out string situacaoEmAndamento);
+            situacoes.TryGetValue("ABERTO", out var situacaoEmAberto);
+            situacoes.TryGetValue("ANDAMENTO", out var situacaoEmAndamento);
 
-            List<PedidoItem> pedidos = null;
+            List<PedidoItem> pedidos;
             try
             {
-                BuildOrdersFilter filters = new BuildOrdersFilter();
-                string filter = filters.AddDateFilter(initialDate, DateTime.Now)
+                var filters = new BuildOrdersFilter();
+                var filter = filters.AddDateFilter(initialDate, DateTime.Now)
                     .AddSituation(situacaoEmAberto)
                     .Build();
 
                 // Verifica se somente um pedido será importado
-                if (string.IsNullOrWhiteSpace(config.BlingOrderNum))
+                if (string.IsNullOrWhiteSpace(_config.BlingOrderNum))
                 {
-                    pedidos = blingClient.ExecuteGetOrder(filter);
+                    pedidos = _blingClient.ExecuteGetOrder(filter);
                 }
                 else
                 {
-                    Log.Information($"Procurando somente pelo pedido {config.BlingOrderNum} no Bling");
-                    int orderNum = int.Parse(config.BlingOrderNum);
-                    pedidos = blingClient.ExecuteGetOrder(orderNum);
+                    Log.Information($"Procurando somente pelo pedido {_config.BlingOrderNum} no Bling");
+                    var orderNum = int.Parse(_config.BlingOrderNum);
+                    pedidos = _blingClient.ExecuteGetOrder(orderNum);
                 }
             }
             catch (BlingException e)
@@ -52,17 +52,17 @@ namespace BlingIntegrationTagplus.Services
                 return new List<PedidoItem>();
             }
 
-            if (string.IsNullOrWhiteSpace(config.BlingOrderNum))
+            if (string.IsNullOrWhiteSpace(_config.BlingOrderNum))
             {
                 // Contorno para pedidos do Íntegra
-                List<PedidoItem> pedidosIntegra = null;
+                List<PedidoItem> pedidosIntegra;
                 try
                 {
-                    BuildOrdersFilter filters = new BuildOrdersFilter();
-                    string filter = filters.AddDateFilter(initialDate, DateTime.Now)
+                    var filters = new BuildOrdersFilter();
+                    var filter = filters.AddDateFilter(initialDate, DateTime.Now)
                         .AddSituation(situacaoEmAndamento)
                         .Build();
-                    List<PedidoItem> pedidosIntegraTotal = blingClient.ExecuteGetOrder(filter);
+                    var pedidosIntegraTotal = _blingClient.ExecuteGetOrder(filter);
                     // Filtra os pedidos para somente os do canal Íntegra
                     pedidosIntegra = pedidosIntegraTotal.Where(pedido => pedido.Pedido.TipoIntegracao.Equals("IntegraCommerce")).ToList();
                 }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Serilog;
 
 namespace BlingIntegrationTagplus.Services
 {
@@ -12,24 +13,32 @@ namespace BlingIntegrationTagplus.Services
     {
         public List<Fatura> ConstructFatura(PedidoItem pedido, IList<GetFormasPagamentoResponse> formasPagamento)
         {
-            List<Fatura> faturas = new List<Fatura>();
-            Fatura fatura = new Fatura
+            var faturas = new List<Fatura>();
+            var fatura = new Fatura
             {
                 Parcelas = new List<Clients.TagPlus.Models.Pedidos.Parcela>()
             };
             foreach (ParcelaItem parcelaWrapper in pedido.Pedido.Parcelas)
             {
-                Clients.Bling.Models.Pedidos.Parcela parcela = parcelaWrapper.Parcela;
-                int formaPagamento = formasPagamento.First(forma => forma.Descricao.Equals(parcela.FormaPagamento.Descricao)).Id;
+                var parcela = parcelaWrapper.Parcela;
+                var formaPagamento = formasPagamento.FirstOrDefault(forma => forma.Descricao.Equals(parcela.FormaPagamento.Descricao));
+
+                if (formaPagamento == null)
+                {
+                    Log.Error($"Forma de pagamento: {parcela.FormaPagamento.Descricao} não encontrada");
+                    return new List<Fatura>();
+                }
+
+                var formaPagamentoId = formaPagamento.Id;
                 // Converte a data de vencimento
-                string date = DateTime.Parse(parcela.DataVencimento).ToString("yyyy-MM-dd");
-                Clients.TagPlus.Models.Pedidos.Parcela parcelaTagPlus = new Clients.TagPlus.Models.Pedidos.Parcela
+                var date = DateTime.Parse(parcela.DataVencimento).ToString("yyyy-MM-dd");
+                var parcelaTagPlus = new Clients.TagPlus.Models.Pedidos.Parcela
                 {
                     ValorParcela = float.Parse(parcela.Valor, CultureInfo.InvariantCulture.NumberFormat),
                     DataVencimento = date
                 };
                 fatura.Parcelas.Add(parcelaTagPlus);
-                fatura.FormaPagamento = formaPagamento;
+                fatura.FormaPagamento = formaPagamentoId;
             }
             faturas.Add(fatura);
 

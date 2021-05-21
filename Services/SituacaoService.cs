@@ -9,34 +9,53 @@ namespace BlingIntegrationTagplus.Services
     class SituacaoService
     {
 
-        private readonly BlingClient blingClient;
+        private readonly BlingClient _blingClient;
 
         public SituacaoService(BlingClient blingClient)
         {
-            this.blingClient = blingClient;
+            _blingClient = blingClient;
         }
 
         public Dictionary<string, string> GetSituacoes()
         {
-            GetSituacaoResponse situacoes = null;
+            GetSituacaoResponse situacoes;
             try
             {
-                situacoes = blingClient.ExecuteGetSituacao();
+                situacoes = _blingClient.ExecuteGetSituacao();
             }
             catch (BlingException e)
             {
-                throw new SituacaoException($"Não foi possível recuperar as situações: {e.Message}");                
+                throw new SituacaoException($"Não foi possível recuperar as situações: {e.Message}");
             }
 
-            string situacaoImportado = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Importado no TagPlus")).Situacao.Id;
-            string situacaoEmAberto = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Em aberto")).Situacao.Id;
-            string situacaoEmAndamento = situacoes.Retorno.Situacoes.First(situacao => situacao.Situacao.Nome.Equals("Em andamento")).Situacao.Id;
+            var situacaoImportado = situacoes.Retorno.Situacoes.FirstOrDefault(situacao => situacao.Situacao.Nome.Equals("Importado no TagPlus"));
+            var situacaoEmAberto = situacoes.Retorno.Situacoes.FirstOrDefault(situacao => situacao.Situacao.Nome.Equals("Em aberto"));
+            var situacaoEmAndamento = situacoes.Retorno.Situacoes.FirstOrDefault(situacao => situacao.Situacao.Nome.Equals("Em andamento"));
 
-            return new Dictionary<string, string>()
+            if (situacaoImportado == null)
             {
-                { "IMPORTADO", situacaoImportado },
-                { "ABERTO", situacaoEmAberto },
-                { "ANDAMENTO", situacaoEmAndamento }
+                throw new SituacaoException($"Não foi possível recuperar a situação: Importado no TagPlus");
+            }
+
+            if (situacaoEmAberto == null)
+            {
+                throw new SituacaoException($"Não foi possível recuperar a situação: Em aberto");
+            }
+
+            if (situacaoEmAndamento == null)
+            {
+                throw new SituacaoException($"Não foi possível recuperar a situação: Em andamento");
+            }
+
+            var situacaoImportadoId = situacaoImportado.Situacao.Id;
+            var situacaoEmAbertoId = situacaoEmAberto.Situacao.Id;
+            var situacaoEmAndamentoId = situacaoEmAndamento.Situacao.Id;
+
+            return new Dictionary<string, string>
+            {
+                { "IMPORTADO", situacaoImportadoId },
+                { "ABERTO", situacaoEmAbertoId },
+                { "ANDAMENTO", situacaoEmAndamentoId }
             };
         }
     }

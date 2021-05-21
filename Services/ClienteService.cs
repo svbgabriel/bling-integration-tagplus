@@ -9,32 +9,32 @@ namespace BlingIntegrationTagplus.Services
 {
     class ClienteService
     {
-        private readonly TagPlusClient tagPlusClient;
+        private readonly TagPlusClient _tagPlusClient;
 
         public ClienteService(TagPlusClient tagPlusClient)
         {
-            this.tagPlusClient = tagPlusClient;
+            _tagPlusClient = tagPlusClient;
         }
 
         public int GetCliente(PedidoItem pedido)
         {
-            int clienteId = 0;
+            var clienteId = 0;
 
             if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Cnpj))
             {
                 if (ValidateUtils.IsCpf(pedido.Pedido.Cliente.Cnpj))
                 {
-                    clienteId = tagPlusClient.GetClienteByCpf(pedido.Pedido.Cliente.Cnpj);
+                    clienteId = _tagPlusClient.GetClienteByCpf(pedido.Pedido.Cliente.Cnpj);
                 }
                 else if (ValidateUtils.IsCnpj(pedido.Pedido.Cliente.Cnpj))
                 {
-                    clienteId = tagPlusClient.GetClienteByCnpj(pedido.Pedido.Cliente.Cnpj);
+                    clienteId = _tagPlusClient.GetClienteByCnpj(pedido.Pedido.Cliente.Cnpj);
                 }
 
             }
             else
             {
-                clienteId = tagPlusClient.GetClienteByRazaoSocial(pedido.Pedido.Cliente.Nome);
+                clienteId = _tagPlusClient.GetClienteByRazaoSocial(pedido.Pedido.Cliente.Nome);
             }
 
             return clienteId;
@@ -46,7 +46,7 @@ namespace BlingIntegrationTagplus.Services
             tiposContato.TryGetValue("CELULAR", out int celularContato);
             tiposContato.TryGetValue("TELEFONE", out int telefoneContato);
 
-            ClienteBody cliente = new ClienteBody
+            var cliente = new ClienteBody
             {
                 RazaoSocial = pedido.Pedido.Cliente.Nome,
                 Ativo = true
@@ -66,11 +66,11 @@ namespace BlingIntegrationTagplus.Services
             }
 
             // Preenche as informações de contato
-            List<Contato> contatos = new List<Contato>();
+            var contatos = new List<Contato>();
             // Verifica se existe o telefone
             if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Fone))
             {
-                Contato fone = new Contato
+                var fone = new Contato
                 {
                     TipoContato = telefoneContato,
                     Descricao = pedido.Pedido.Cliente.Fone,
@@ -81,7 +81,7 @@ namespace BlingIntegrationTagplus.Services
             // Verifica se existe o e-mail
             if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Email))
             {
-                Contato email = new Contato
+                var email = new Contato
                 {
                     TipoContato = emailContato,
                     Descricao = pedido.Pedido.Cliente.Email,
@@ -92,7 +92,7 @@ namespace BlingIntegrationTagplus.Services
             // Verifica se existe o celular
             if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Celular))
             {
-                Contato celular = new Contato
+                var celular = new Contato
                 {
                     TipoContato = celularContato,
                     Descricao = pedido.Pedido.Cliente.Celular,
@@ -111,7 +111,7 @@ namespace BlingIntegrationTagplus.Services
             if (pedido.Pedido.Transporte != null)
             {
                 cliente.Enderecos = new List<Endereco>();
-                Endereco endereco = new Endereco
+                var endereco = new Endereco
                 {
                     Logradouro = pedido.Pedido.Transporte.EnderecoEntrega.Endereco,
                     Numero = pedido.Pedido.Transporte.EnderecoEntrega.Numero,
@@ -126,7 +126,7 @@ namespace BlingIntegrationTagplus.Services
                 && pedido.Pedido.Cliente.Cep != null && pedido.Pedido.Cliente.Bairro != null)
             {
                 cliente.Enderecos = new List<Endereco>();
-                Endereco endereco = new Endereco
+                var endereco = new Endereco
                 {
                     Logradouro = pedido.Pedido.Cliente.Endereco,
                     Numero = pedido.Pedido.Cliente.Numero,
@@ -141,7 +141,7 @@ namespace BlingIntegrationTagplus.Services
             int clienteId;
             try
             {
-                clienteId = tagPlusClient.PostCliente(cliente);
+                clienteId = _tagPlusClient.PostCliente(cliente);
             }
             catch (TagPlusException e)
             {

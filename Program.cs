@@ -1,5 +1,4 @@
 using BlingIntegrationTagplus.Clients.Bling;
-using BlingIntegrationTagplus.Clients.Bling.Models.Pedidos;
 using BlingIntegrationTagplus.Clients.TagPlus;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.FormasPagamento;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.Fornecedores;
@@ -97,7 +96,7 @@ namespace BlingIntegrationTagplus
                 Log.CloseAndFlush();
                 Environment.Exit(-1);
             }
-            situacoes.TryGetValue("IMPORTADO", out string situacaoImportado);
+            situacoes.TryGetValue("IMPORTADO", out var situacaoImportado);
 
             // Encontra os tipos de contato
             Dictionary<string, int> tiposContato = null;
@@ -168,7 +167,7 @@ namespace BlingIntegrationTagplus
             // Recupera os pedidos do Bling
             Log.Information("Procurando pedidos no Bling...");
 
-            List<PedidoItem> pedidos = blingPedidoService.GetPedidos(situacoes, initialDate);
+            var pedidos = blingPedidoService.GetPedidos(situacoes, initialDate);
 
             // Verifica se existem pedidos
             if (pedidos.Count == 0)
@@ -183,13 +182,13 @@ namespace BlingIntegrationTagplus
 
             // Envia os pedidos para o TagPlus
             Log.Information($"Foram encontrados {pedidos.Count} pedido(s)");
-            foreach (PedidoItem pedido in pedidos)
+            foreach (var pedido in pedidos)
             {
                 Log.Information("--------------------------------------------");
                 Log.Information($"Tratando o Pedido {pedido.Pedido.Numero}");
 
                 // Tenta recupera o Cliente de várias maneiras
-                int clienteId = clieteService.GetCliente(pedido);
+                var clienteId = clieteService.GetCliente(pedido);
 
                 // Cria se não existir
                 if (clienteId == 0)
@@ -228,8 +227,14 @@ namespace BlingIntegrationTagplus
                 // Recupera as faturas
                 var faturas = faturaService.ConstructFatura(pedido, formasPagamento);
 
+                if (faturas.Count == 0)
+                {
+                    Log.Information("Não foram encontradas faturas no pedido");
+                    continue;
+                }
+
                 // Cria o corpo do pedido
-                PedidoBody body = new PedidoBody
+                var body = new PedidoBody
                 {
                     CodigoExterno = pedido.Pedido.Numero,
                     Cliente = clienteId,
@@ -242,7 +247,7 @@ namespace BlingIntegrationTagplus
                 };
 
                 // Envia o novo pedido
-                Clients.TagPlus.Models.Pedidos.GetPedidosResponse response;
+                GetPedidosResponse response;
                 try
                 {
                     response = tagPlusClient.PostPedidos(body);
@@ -258,7 +263,7 @@ namespace BlingIntegrationTagplus
                 var itensCompra = produtoService.GetListaPedidosCompra(produtos, response.Numero, fornecedores, dicFornecedores);
 
                 // Envia os novos pedidos de compra
-                bool error = false;
+                var error = false;
                 foreach (var pedidoCompraBody in itensCompra)
                 {
                     try

@@ -15,23 +15,23 @@ namespace BlingIntegrationTagplus.Services
 {
     class ProdutoService
     {
-        private readonly TagPlusClient tagPlusClient;
+        private readonly TagPlusClient _tagPlusClient;
 
         public ProdutoService(TagPlusClient tagPlusClient)
         {
-            this.tagPlusClient = tagPlusClient;
+            _tagPlusClient = tagPlusClient;
         }
 
         public List<Produto> GetListaProdutos(PedidoItem pedido)
         {
-            List<Produto> itens = new List<Produto>();
-            for (int i = 0; i < pedido.Pedido.Itens.Count; i++)
+            var itens = new List<Produto>();
+            for (var i = 0; i < pedido.Pedido.Itens.Count; i++)
             {
                 var blingItem = pedido.Pedido.Itens[i].Item;
                 GetProdutosResponse produtoServico;
                 try
                 {
-                    produtoServico = tagPlusClient.GetProduto(blingItem.Codigo);
+                    produtoServico = _tagPlusClient.GetProduto(blingItem.Codigo);
                 }
                 catch (TagPlusException e)
                 {
@@ -53,7 +53,7 @@ namespace BlingIntegrationTagplus.Services
                     throw new ProdutoException($"Não foi possível extrair o distribuidor de: {produtoServico.Descricao}. Erro: {e.Message}");
                 }
 
-                Produto produto = new Produto
+                var produto = new Produto
                 {
                     NumItem = i,
                     Id = produtoServico.Id,
@@ -69,12 +69,12 @@ namespace BlingIntegrationTagplus.Services
             return itens;
         }
 
-        public List<Clients.TagPlus.Models.Pedidos.Item> GetListaPedidos(List<Produto> produtos)
+        public List<Clients.TagPlus.Models.Pedidos.Item> GetListaPedidos(IEnumerable<Produto> produtos)
         {
-            List<Clients.TagPlus.Models.Pedidos.Item> itens = new List<Clients.TagPlus.Models.Pedidos.Item>();
-            foreach (Produto produto in produtos)
+            var itens = new List<Clients.TagPlus.Models.Pedidos.Item>();
+            foreach (var produto in produtos)
             {
-                Clients.TagPlus.Models.Pedidos.Item tagPlusItem = new Clients.TagPlus.Models.Pedidos.Item
+                var tagPlusItem = new Clients.TagPlus.Models.Pedidos.Item
                 {
                     NumItem = produto.NumItem,
                     ProdutoServico = produto.Id,
@@ -88,7 +88,7 @@ namespace BlingIntegrationTagplus.Services
             return itens;
         }
 
-        public IList<PedidoCompraBody> GetListaPedidosCompra(List<Produto> produtos, int numero, IList<GetFornecedoresResponse> fornecedores, Dictionary<string, string> dicFornecedores)
+        public IEnumerable<PedidoCompraBody> GetListaPedidosCompra(List<Produto> produtos, int numero, IList<GetFornecedoresResponse> fornecedores, Dictionary<string, string> dicFornecedores)
         {
             IList<PedidoCompraBody> itensCompra = new List<PedidoCompraBody>();
             // Separa por fornecedor
@@ -98,8 +98,8 @@ namespace BlingIntegrationTagplus.Services
 
                 // Busca o fornecedor
                 var key = produtosLista.Key;
-                dicFornecedores.TryGetValue(key, out string cnpjFornecedor);
-                int idFornecedor = 0;
+                dicFornecedores.TryGetValue(key, out var cnpjFornecedor);
+                var idFornecedor = 0;
                 foreach (var fornecedor in fornecedores)
                 {
                     if (fornecedor.CNPJ != null && fornecedor.CNPJ.Equals(cnpjFornecedor))
@@ -110,11 +110,11 @@ namespace BlingIntegrationTagplus.Services
                 }
 
                 // Prepara a lista
-                IList<Clients.TagPlus.Models.PedidosCompra.Item> itens = new List<Clients.TagPlus.Models.PedidosCompra.Item>();
-                foreach (Produto produto in produtos)
+                var itens = new List<Clients.TagPlus.Models.PedidosCompra.Item>();
+                foreach (var produto in produtos)
                 {
                     // Pedido de Compra
-                    Clients.TagPlus.Models.PedidosCompra.Item tagPlusItemCompra = new Clients.TagPlus.Models.PedidosCompra.Item
+                    var tagPlusItemCompra = new Clients.TagPlus.Models.PedidosCompra.Item
                     {
                         NumItem = produto.NumItem,
                         ProdutoServico = produto.Id,
@@ -125,7 +125,7 @@ namespace BlingIntegrationTagplus.Services
                     itens.Add(tagPlusItemCompra);
                 }
 
-                PedidoCompraBody pedidoCompraBody = new PedidoCompraBody
+                var pedidoCompraBody = new PedidoCompraBody
                 {
                     Itens = itens,
                     Fornecedor = idFornecedor,
