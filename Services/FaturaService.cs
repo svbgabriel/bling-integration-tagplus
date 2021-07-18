@@ -18,14 +18,23 @@ namespace BlingIntegrationTagplus.Services
             {
                 Parcelas = new List<Clients.TagPlus.Models.Pedidos.Parcela>()
             };
-            foreach (ParcelaItem parcelaWrapper in pedido.Pedido.Parcelas)
+            foreach (var parcelaWrapper in pedido.Pedido.Parcelas)
             {
                 var parcela = parcelaWrapper.Parcela;
-                var formaPagamento = formasPagamento.FirstOrDefault(forma => forma.Descricao.Equals(parcela.FormaPagamento.Descricao));
+
+                // Contorno para o Boleto
+                var formaPagamentoQuery = parcela.FormaPagamento.Descricao.Equals("Boleto (Conta a receber/pagar)",
+                    StringComparison.OrdinalIgnoreCase)
+                    ? "Boleto"
+                    : parcela.FormaPagamento.Descricao;
+
+                var formaPagamento =
+                    formasPagamento.FirstOrDefault(forma =>
+                        forma.Descricao.Equals(formaPagamentoQuery, StringComparison.OrdinalIgnoreCase));
 
                 if (formaPagamento == null)
                 {
-                    Log.Error($"Forma de pagamento: {parcela.FormaPagamento.Descricao} não encontrada");
+                    Log.Error($"Forma de pagamento: {formaPagamentoQuery} não encontrada");
                     return new List<Fatura>();
                 }
 
@@ -40,6 +49,7 @@ namespace BlingIntegrationTagplus.Services
                 fatura.Parcelas.Add(parcelaTagPlus);
                 fatura.FormaPagamento = formaPagamentoId;
             }
+
             faturas.Add(fatura);
 
             return faturas;
