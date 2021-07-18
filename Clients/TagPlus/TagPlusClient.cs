@@ -287,7 +287,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
-                Log.Error("TagPlus - GetTiposContatos() - Erro durante a recuperação dos fornecedores");
+                Log.Error("TagPlus - GetFornecedores() - Erro durante a recuperação dos fornecedores");
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
