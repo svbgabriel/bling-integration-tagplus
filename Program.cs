@@ -251,7 +251,7 @@ namespace BlingIntegrationTagplus
                 try
                 {
                     response = tagPlusClient.PostPedidos(body);
-                    Log.Information($"Pedido cadastrado no TagPlus com o ID: {response.Id}");
+                    Log.Information($"Pedido cadastrado no TagPlus com o ID: {response.Numero}");
                 }
                 catch (TagPlusException e)
                 {
