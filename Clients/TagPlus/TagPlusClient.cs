@@ -46,11 +46,9 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
-            else
-            {
-                var pedido = JsonConvert.DeserializeObject<GetPedidosResponse>(response.Content);
-                return pedido;
-            }
+
+            var pedido = JsonConvert.DeserializeObject<GetPedidosResponse>(response.Content);
+            return pedido;
         }
 
         public int GetClienteByRazaoSocial(string nome)
@@ -71,17 +69,15 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
-            else
+
+            var clientes = JsonConvert.DeserializeObject<IList<GetClientesResponse>>(response.Content);
+            // Caso não seja encontrado retorna 0
+            if (clientes.Count == 0)
             {
-                var clientes = JsonConvert.DeserializeObject<IList<GetClientesResponse>>(response.Content);
-                // Caso não seja encontrado retorna 0
-                if (clientes.Count == 0)
-                {
-                    return 0;
-                }
-                int id = clientes[0].Id;
-                return id;
+                return 0;
             }
+            var id = clientes[0].Id;
+            return id;
         }
 
         public int GetClienteByCpf(string cpf)
@@ -102,17 +98,15 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
-            else
+
+            var clientes = JsonConvert.DeserializeObject<IList<GetClientesResponse>>(response.Content);
+            // Caso não seja encontrado retorna 0
+            if (clientes.Count == 0)
             {
-                var clientes = JsonConvert.DeserializeObject<IList<GetClientesResponse>>(response.Content);
-                // Caso não seja encontrado retorna 0
-                if (clientes.Count == 0)
-                {
-                    return 0;
-                }
-                int id = clientes[0].Id;
-                return id;
+                return 0;
             }
+            var id = clientes[0].Id;
+            return id;
         }
 
         public int GetClienteByCnpj(string cnpj)
@@ -133,17 +127,15 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
-            else
+
+            var clientes = JsonConvert.DeserializeObject<IList<GetClientesResponse>>(response.Content);
+            // Caso não seja encontrado retorna 0
+            if (clientes.Count == 0)
             {
-                var clientes = JsonConvert.DeserializeObject<IList<GetClientesResponse>>(response.Content);
-                // Caso não seja encontrado retorna 0
-                if (clientes.Count == 0)
-                {
-                    return 0;
-                }
-                int id = clientes[0].Id;
-                return id;
+                return 0;
             }
+            var id = clientes[0].Id;
+            return id;
         }
 
         public int PostCliente(ClienteBody clienteBody)
@@ -165,11 +157,9 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
-            else
-            {
-                var cliente = JsonConvert.DeserializeObject<GetClientesResponse>(response.Content);
-                return cliente.Id;
-            }
+
+            var cliente = JsonConvert.DeserializeObject<GetClientesResponse>(response.Content);
+            return cliente.Id;
         }
 
         public GetProdutosResponse GetProduto(string codigo)
@@ -190,17 +180,15 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
-            else
-            {
-                var produtos = JsonConvert.DeserializeObject<IList<GetProdutosResponse>>(response.Content);
-                // Caso não seja encontrado retorna null
-                if (produtos.Count == 0)
-                {
-                    return null;
-                }
 
-                return produtos[0];
+            var produtos = JsonConvert.DeserializeObject<IList<GetProdutosResponse>>(response.Content);
+            // Caso não seja encontrado retorna null
+            if (produtos.Count == 0)
+            {
+                return null;
             }
+
+            return produtos[0];
         }
 
         public IList<GetFormasPagamentoResponse> GetFormasPagamentos()
@@ -219,11 +207,9 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
-            else
-            {
-                var formas = JsonConvert.DeserializeObject<IList<GetFormasPagamentoResponse>>(response.Content);
-                return formas;
-            }
+
+            var formas = JsonConvert.DeserializeObject<IList<GetFormasPagamentoResponse>>(response.Content);
+            return formas;
         }
 
         public IList<GetTiposContatosResponse> GetTiposContatos()
@@ -242,11 +228,9 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
-            else
-            {
-                var tiposContatos = JsonConvert.DeserializeObject<IList<GetTiposContatosResponse>>(response.Content);
-                return tiposContatos;
-            }
+
+            var tiposContatos = JsonConvert.DeserializeObject<IList<GetTiposContatosResponse>>(response.Content);
+            return tiposContatos;
         }
 
         public GetPedidoCompraResponse PostPedidoCompra(PedidoCompraBody body)
@@ -268,11 +252,9 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
-            else
-            {
-                var pedido = JsonConvert.DeserializeObject<GetPedidoCompraResponse>(response.Content);
-                return pedido;
-            }
+
+            var pedido = JsonConvert.DeserializeObject<GetPedidoCompraResponse>(response.Content);
+            return pedido;
         }
 
         public IList<GetFornecedoresResponse> GetFornecedores()
@@ -291,11 +273,9 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
-            else
-            {
-                var fornecedores = JsonConvert.DeserializeObject<IList<GetFornecedoresResponse>>(response.Content);
-                return fornecedores;
-            }
+
+            var fornecedores = JsonConvert.DeserializeObject<IList<GetFornecedoresResponse>>(response.Content);
+            return fornecedores;
         }
     }
 }
