@@ -42,6 +42,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             {
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
                 Log.Error("TagPlus - PostPedidos(PedidoBody body) - Erro durante a criação do pedido");
+                if (error == null) throw new TagPlusException("Erro desconhecido");
                 Log.Error(JsonConvert.SerializeObject(body));
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
@@ -66,6 +67,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
                 Log.Error("TagPlus - GetClienteByRazaoSocial(string nome) - Erro durante a recuperação do cliente");
                 Log.Error($"nome: {nome}");
+                if (error == null) throw new TagPlusException("Erro desconhecido");
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
@@ -95,6 +97,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
                 Log.Error("TagPlus - GetClienteByRazaoSocial(string cpf) - Erro durante a recuperação do cliente");
                 Log.Error($"cpf: {cpf}");
+                if (error == null) throw new TagPlusException("Erro desconhecido");
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
@@ -124,6 +127,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
                 Log.Error("TagPlus - GetClienteByRazaoSocial(string cnpj) - Erro durante a recuperação do cliente");
                 Log.Error($"cnpj: {cnpj}");
+                if (error == null) throw new TagPlusException("Erro desconhecido");
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
@@ -154,6 +158,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
                 Log.Error("TagPlus - PostCliente(ClienteBody clienteBody) - Erro durante a criação do cliente");
                 Log.Error(JsonConvert.SerializeObject(clienteBody));
+                if (error == null) throw new TagPlusException("Erro desconhecido");
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
@@ -177,6 +182,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
                 Log.Error("TagPlus - GetProduto(string codigo) - Erro durante a recuperação do produto");
                 Log.Error($"codigo: {codigo}");
+                if (error == null) throw new TagPlusException("Erro desconhecido");
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
@@ -204,6 +210,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             {
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
                 Log.Error("TagPlus - GetFormasPagamentos() - Erro durante a recuperação das formas de pagamento");
+                if (error == null) throw new TagPlusException("Erro desconhecido");
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
@@ -225,6 +232,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             {
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
                 Log.Error("TagPlus - GetTiposContatos() - Erro durante a recuperação das tipos de contato");
+                if (error == null) throw new TagPlusException("Erro desconhecido");
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
@@ -249,6 +257,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
                 Log.Error("TagPlus - PostPedidos(PedidoCompraBody body) - Erro durante a criação do pedido de compra");
                 Log.Error(JsonConvert.SerializeObject(body));
+                if (error == null) throw new TagPlusException("Erro desconhecido");
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
@@ -270,6 +279,7 @@ namespace BlingIntegrationTagplus.Clients.TagPlus
             {
                 var error = JsonConvert.DeserializeObject<TagPlusResponseError>(response.Content);
                 Log.Error("TagPlus - GetFornecedores() - Erro durante a recuperação dos fornecedores");
+                if (error == null) throw new TagPlusException("Erro desconhecido");
                 Log.Error($"Código {error.ErrorCode} : {error.Message}");
                 throw new TagPlusException($"Código {error.ErrorCode} : {error.Message}");
             }
