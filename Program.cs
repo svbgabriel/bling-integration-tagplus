@@ -259,32 +259,6 @@ namespace BlingIntegrationTagplus
                     continue;
                 }
 
-                // Monta a lista de corpo do pedido de compra
-                var itensCompra = produtoService.GetListaPedidosCompra(produtos, response.Numero, fornecedores, dicFornecedores);
-
-                // Envia os novos pedidos de compra
-                var error = false;
-                foreach (var pedidoCompraBody in itensCompra)
-                {
-                    try
-                    {
-                        var responsePedidoCompra = tagPlusClient.PostPedidoCompra(pedidoCompraBody);
-                        Log.Information($"Pedido de compra cadastrado no TagPlus com o Número: {responsePedidoCompra.Numero}");
-                    }
-                    catch (ProdutoException e)
-                    {
-                        Log.Error($"Não foi possível cadastrar o pedido de compra: {e.Message}");
-                        error = true;
-                        break;
-                    }
-                }
-
-                if (error)
-                {
-                    Log.Error("O pedido terá que ser cadastrado manualmente");
-                    continue;
-                }
-
                 // Atualiza a situação no Bling
                 Log.Information("Atualizando a situação no Bling");
                 try
