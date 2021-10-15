@@ -14,28 +14,29 @@ namespace BlingIntegrationTagplus
 
         public static Config LoadConfig()
         {
+            // Verifica se o arquivo existe
+            if (!File.Exists("config.txt"))
+            {
+                throw new ConfigException("O arquivo config.txt não foi encontrado");
+            }
+
             // Carrega o arquivo de configuração
             try
             {
-                DotEnv.Config(filePath: "config.txt");
-                var envReader = new EnvReader();
+                DotEnv.Load(new DotEnvOptions(envFilePaths: new []{ "config.txt" }));
                 // Carrega a API KEY do Bling
-                string blingApiKey = envReader.GetStringValue("BLING_API_KEY");
+                var blingApiKey = EnvReader.GetStringValue("BLING_API_KEY");
                 // Carrega a data inicial do Bling
-                string blingInitialDate = envReader.GetStringValue("BLING_INITIAL_DATE");
+                var blingInitialDate = EnvReader.GetStringValue("BLING_INITIAL_DATE");
                 // Carrega o Token do Tagplus
-                string tagplusToken = envReader.GetStringValue("TAGPLUS_TOKEN");
+                var tagplusToken = EnvReader.GetStringValue("TAGPLUS_TOKEN");
                 // Carrega o número de pedido especifico
-                envReader.TryGetStringValue("BLING_ORDER_NUM", out string blingOrderNum);
+                EnvReader.TryGetStringValue("BLING_ORDER_NUM", out var blingOrderNum);
                 // Carrega a URL da API do Bling
-                string blingApiUrl = envReader.GetStringValue("BLING_API_URL");
+                var blingApiUrl = EnvReader.GetStringValue("BLING_API_URL");
                 // Carrega a URL da API do Tagplus
-                string tagplusApiUrl = envReader.GetStringValue("TAGPLUS_API_URL");
+                var tagplusApiUrl = EnvReader.GetStringValue("TAGPLUS_API_URL");
                 return new Config(blingApiKey, blingInitialDate, tagplusToken, blingApiUrl, tagplusApiUrl, blingOrderNum);
-            }
-            catch (FileNotFoundException)
-            {
-                throw new ConfigException("O arquivo config.txt não foi encontrado");
             }
             catch (Exception e)
             {
