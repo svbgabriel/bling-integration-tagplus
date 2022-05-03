@@ -20,7 +20,7 @@ namespace BlingIntegrationTagplus.Services
         {
             var clienteId = 0;
 
-            if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Cnpj))
+            if (!string.IsNullOrWhiteSpace(pedido.Pedido?.Cliente?.Cnpj))
             {
                 if (ValidateUtils.IsCpf(pedido.Pedido.Cliente.Cnpj))
                 {
@@ -34,7 +34,7 @@ namespace BlingIntegrationTagplus.Services
             }
             else
             {
-                clienteId = _tagPlusClient.GetClienteByRazaoSocial(pedido.Pedido.Cliente.Nome);
+                clienteId = _tagPlusClient.GetClienteByRazaoSocial(pedido.Pedido?.Cliente?.Nome);
             }
 
             return clienteId;
@@ -51,7 +51,7 @@ namespace BlingIntegrationTagplus.Services
                 RazaoSocial = pedido.Pedido.Cliente.Nome,
                 Ativo = true
             };
-            if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Cnpj))
+            if (!string.IsNullOrWhiteSpace(pedido.Pedido?.Cliente?.Cnpj))
             {
                 if (ValidateUtils.IsCpf(pedido.Pedido.Cliente.Cnpj))
                 {
@@ -68,7 +68,7 @@ namespace BlingIntegrationTagplus.Services
             // Preenche as informações de contato
             var contatos = new List<Contato>();
             // Verifica se existe o telefone
-            if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Fone))
+            if (!string.IsNullOrWhiteSpace(pedido.Pedido?.Cliente?.Fone))
             {
                 var fone = new Contato
                 {
@@ -79,7 +79,7 @@ namespace BlingIntegrationTagplus.Services
                 contatos.Add(fone);
             }
             // Verifica se existe o e-mail
-            if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Email))
+            if (!string.IsNullOrWhiteSpace(pedido.Pedido?.Cliente?.Email))
             {
                 var email = new Contato
                 {
@@ -90,7 +90,7 @@ namespace BlingIntegrationTagplus.Services
                 contatos.Add(email);
             }
             // Verifica se existe o celular
-            if (!string.IsNullOrWhiteSpace(pedido.Pedido.Cliente.Celular))
+            if (!string.IsNullOrWhiteSpace(pedido.Pedido?.Cliente?.Celular))
             {
                 var celular = new Contato
                 {
@@ -108,7 +108,7 @@ namespace BlingIntegrationTagplus.Services
             }
 
             // Preenche o endereço, se estiver disponível
-            if (pedido.Pedido.Transporte != null)
+            if (pedido.Pedido?.Transporte?.EnderecoEntrega != null)
             {
                 cliente.Enderecos = new List<Endereco>();
                 var endereco = new Endereco
@@ -122,8 +122,8 @@ namespace BlingIntegrationTagplus.Services
                 };
                 cliente.Enderecos.Add(endereco);
             }
-            else if (pedido.Pedido.Cliente.Endereco != null && pedido.Pedido.Cliente.Numero != null
-                && pedido.Pedido.Cliente.Cep != null && pedido.Pedido.Cliente.Bairro != null)
+            else if (pedido.Pedido?.Cliente?.Endereco != null && pedido.Pedido?.Cliente?.Numero != null
+                && pedido.Pedido?.Cliente?.Cep != null && pedido.Pedido?.Cliente?.Bairro != null)
             {
                 cliente.Enderecos = new List<Endereco>();
                 var endereco = new Endereco
