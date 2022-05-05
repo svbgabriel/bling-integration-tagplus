@@ -7,11 +7,8 @@ namespace BlingIntegrationTagplus.Utils
 
         public static bool IsCnpj(string cnpj)
         {
-            int[] multiplicador1 = new int[12] { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
-            int[] multiplicador2 = new int[13] { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
-            int soma;
-            int resto;
-            string digito;
+            int[] multiplicador1 = { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+            int[] multiplicador2 = { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
             string tempCnpj;
             cnpj = cnpj.Trim();
             cnpj = cnpj.Replace(".", "").Replace("-", "").Replace("/", "");
@@ -20,12 +17,12 @@ namespace BlingIntegrationTagplus.Utils
                 return false;
             }
             tempCnpj = cnpj.Substring(0, 12);
-            soma = 0;
-            for (int i = 0; i < 12; i++)
+            var soma = 0;
+            for (var i = 0; i < 12; i++)
             {
                 soma += int.Parse(tempCnpj[i].ToString()) * multiplicador1[i];
             }
-            resto = (soma % 11);
+            var resto = (soma % 11);
             if (resto < 2)
             {
                 resto = 0;
@@ -34,10 +31,10 @@ namespace BlingIntegrationTagplus.Utils
             {
                 resto = 11 - resto;
             }
-            digito = resto.ToString();
+            var digito = resto.ToString();
             tempCnpj += digito;
             soma = 0;
-            for (int i = 0; i < 13; i++)
+            for (var i = 0; i < 13; i++)
             {
                 soma += int.Parse(tempCnpj[i].ToString()) * multiplicador2[i];
             }
@@ -56,11 +53,9 @@ namespace BlingIntegrationTagplus.Utils
 
         public static bool IsCpf(string cpf)
         {
-            int[] multiplicador1 = new int[9] { 10, 9, 8, 7, 6, 5, 4, 3, 2 };
-            int[] multiplicador2 = new int[10] { 11, 10, 9, 8, 7, 6, 5, 4, 3, 2 };
-            string tempCpf;
+            int[] multiplicador1 = { 10, 9, 8, 7, 6, 5, 4, 3, 2 };
+            int[] multiplicador2 = { 11, 10, 9, 8, 7, 6, 5, 4, 3, 2 };
             string digito;
-            int soma;
             int resto;
             cpf = cpf.Trim();
             cpf = cpf.Replace(".", "").Replace("-", "");
@@ -68,10 +63,10 @@ namespace BlingIntegrationTagplus.Utils
             {
                 return false;
             }
-            tempCpf = cpf.Substring(0, 9);
-            soma = 0;
+            var tempCpf = cpf.Substring(0, 9);
+            var soma = 0;
 
-            for (int i = 0; i < 9; i++)
+            for (var i = 0; i < 9; i++)
             {
                 soma += int.Parse(tempCpf[i].ToString()) * multiplicador1[i];
             }
@@ -87,7 +82,7 @@ namespace BlingIntegrationTagplus.Utils
             digito = resto.ToString();
             tempCpf += digito;
             soma = 0;
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
                 soma += int.Parse(tempCpf[i].ToString()) * multiplicador2[i];
             }

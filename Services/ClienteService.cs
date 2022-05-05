@@ -1,3 +1,4 @@
+using System;
 using BlingIntegrationTagplus.Clients.Bling.Models.Pedidos;
 using BlingIntegrationTagplus.Clients.TagPlus;
 using BlingIntegrationTagplus.Clients.TagPlus.Models.Clientes;
@@ -24,11 +25,13 @@ namespace BlingIntegrationTagplus.Services
             {
                 if (ValidateUtils.IsCpf(pedido.Pedido.Cliente.Cnpj))
                 {
-                    clienteId = _tagPlusClient.GetClienteByCpf(pedido.Pedido.Cliente.Cnpj);
+                    var cpf = FormatCpf(pedido.Pedido.Cliente.Cnpj);
+                    clienteId = _tagPlusClient.GetClienteByCpf(cpf);
                 }
                 else if (ValidateUtils.IsCnpj(pedido.Pedido.Cliente.Cnpj))
                 {
-                    clienteId = _tagPlusClient.GetClienteByCnpj(pedido.Pedido.Cliente.Cnpj);
+                    var cnpj = FormatCnpj(pedido.Pedido.Cliente.Cnpj);
+                    clienteId = _tagPlusClient.GetClienteByCnpj(cnpj);
                 }
 
             }
@@ -149,6 +152,16 @@ namespace BlingIntegrationTagplus.Services
             }
 
             return clienteId;
+        }
+
+        private static string FormatCpf(string cpf)
+        {
+            return Convert.ToUInt64(cpf).ToString(@"000\.000\.000\-00");
+        }
+
+        private static string FormatCnpj(string cnpj)
+        {
+            return Convert.ToUInt64(cnpj).ToString(@"00\.000\.000\/0000\-00");
         }
     }
 }
